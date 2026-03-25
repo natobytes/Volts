@@ -1,0 +1,50 @@
+---
+layout: default
+---
+
+<div class="breadcrumb">
+  <a href="{{ site.baseurl }}/">Home</a> &rsaquo;
+  <a href="{{ site.baseurl }}/tags/">Tags</a> &rsaquo;
+  {{ page.tag }}
+</div>
+
+<h1>Tag: {{ page.tag }}</h1>
+
+{% assign all_items = "" | split: "" %}
+{% for col_entry in site.collections %}
+  {% assign col_name = col_entry.label %}
+  {% if col_name == "lightshows" or col_name == "locksounds" or col_name == "boombox" or col_name == "wraps" or col_name == "hornsounds" %}
+    {% for item in site[col_name] %}
+      {% if item.tags contains page.tag %}
+        {% assign all_items = all_items | push: item %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+
+{% include tag-filter.html %}
+
+{% if all_items.size > 0 %}
+  <div class="card-grid">
+    {% for item in all_items %}
+      <div class="card">
+        <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
+        {% if item.description %}
+          <p>{{ item.description }}</p>
+        {% endif %}
+        {% if item.author %}
+          <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
+        {% endif %}
+        {% if item.tags %}
+          <div class="tag-list">
+            {% for tag in item.tags %}
+              <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="color: var(--color-muted); margin-top: var(--space-lg);">No items tagged with "{{ page.tag }}" yet.</p>
+{% endif %}

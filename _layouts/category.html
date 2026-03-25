@@ -2,11 +2,38 @@
 layout: default
 ---
 
+<div class="breadcrumb">
+  <a href="{{ site.baseurl }}/">Home</a> &rsaquo; {{ page.title }}
+</div>
+
 <h1>{{ page.title }}</h1>
 <p>{{ page.description }}</p>
 
-<ul>
-  {% for item in page.items %}
-    <li><a href="{{ item.url | relative_url }}">{{ item.title }}</a></li>
-  {% endfor %}
-</ul>
+{% include tag-filter.html %}
+
+{% assign collection = site[page.collection_name] %}
+
+{% if collection.size > 0 %}
+  <div class="card-grid">
+    {% for item in collection %}
+      <div class="card">
+        <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
+        {% if item.description %}
+          <p>{{ item.description }}</p>
+        {% endif %}
+        {% if item.author %}
+          <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
+        {% endif %}
+        {% if item.tags %}
+          <div class="tag-list">
+            {% for tag in item.tags %}
+              <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <p style="color: var(--color-muted); margin-top: var(--space-lg);">No items yet. <a href="https://github.com/">Contribute the first one!</a></p>
+{% endif %}
