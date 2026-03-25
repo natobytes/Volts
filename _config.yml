@@ -1,0 +1,40 @@
+title: TeslApp Content Catalog
+description: Community-curated light shows, lock sounds, boombox tracks, wraps, and horn sounds for Tesla vehicles.
+baseurl: "/TeslAppBackend"
+url: ""
+
+markdown: kramdown
+
+plugins:
+  - jekyll-seo-tag
+
+exclude:
+  - node_modules
+  - scripts
+  - public
+  - package.json
+  - package-lock.json
+  - tsconfig.json
+  - Gemfile
+  - Gemfile.lock
+  - dist
+  - "*.ts"
+
+collections_dir: content
+
+collections:
+  lightshows:
+    output: true
+    permalink: /lightshows/:name/
+  locksounds:
+    output: true
+    permalink: /locksounds/:name/
+  boombox:
+    output: true
+    permalink: /boombox/:name/
+  wraps:
+    output: true
+    permalink: /wraps/:name/
+  hornsounds:
+    output: true
+    permalink: /hornsounds/:name/

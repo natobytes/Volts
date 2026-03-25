@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ page.title }} | {{ site.title }}</title>
+  {% seo %}
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="{{ site.baseurl }}/">{{ site.title }}</a>
+    </nav>
+  </header>
+  <main>
+    {{ content }}
+  </main>
+  <footer>
+    <p>&copy; {{ 'now' | date: '%Y' }} TeslApp Community</p>
+  </footer>
+</body>
+</html>
