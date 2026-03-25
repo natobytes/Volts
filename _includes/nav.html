@@ -1,0 +1,10 @@
+<nav>
+  <ul class="site-nav">
+    <li><a href="{{ site.baseurl }}/lightshows/" {% if page.collection_name == "lightshows" %}class="active"{% endif %}>Light Shows</a></li>
+    <li><a href="{{ site.baseurl }}/locksounds/" {% if page.collection_name == "locksounds" %}class="active"{% endif %}>Lock Sounds</a></li>
+    <li><a href="{{ site.baseurl }}/boombox/" {% if page.collection_name == "boombox" %}class="active"{% endif %}>Boombox</a></li>
+    <li><a href="{{ site.baseurl }}/wraps/" {% if page.collection_name == "wraps" %}class="active"{% endif %}>Wraps</a></li>
+    <li><a href="{{ site.baseurl }}/hornsounds/" {% if page.collection_name == "hornsounds" %}class="active"{% endif %}>Horn Sounds</a></li>
+    <li><a href="{{ site.baseurl }}/tags/" {% if page.layout == "tags" or page.layout == "tag" %}class="active"{% endif %}>Tags</a></li>
+  </ul>
+</nav>

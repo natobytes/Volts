@@ -2,20 +2,40 @@
 layout: default
 ---
 
+{% assign col_name = page.collection %}
+{% assign category_titles = "lightshows:Light Shows,locksounds:Lock Sounds,boombox:Boombox,wraps:Wraps,hornsounds:Horn Sounds" | split: "," %}
+{% assign category_label = col_name %}
+{% for pair in category_titles %}
+  {% assign parts = pair | split: ":" %}
+  {% if parts[0] == col_name %}
+    {% assign category_label = parts[1] %}
+  {% endif %}
+{% endfor %}
+
+<div class="breadcrumb">
+  <a href="{{ site.baseurl }}/">Home</a> &rsaquo;
+  <a href="{{ site.baseurl }}/{{ col_name }}/">{{ category_label }}</a> &rsaquo;
+  {{ page.title }}
+</div>
+
 <article>
   <h1>{{ page.title }}</h1>
-  <p>{{ page.description }}</p>
 
-  {% if page.author %}
-    <p><strong>Author:</strong> {{ page.author }}</p>
+  <div class="item-meta">
+    {% if page.author %}<span>by {{ page.author }}</span>{% endif %}
+    {% if page.collection %}<span>{{ category_label }}</span>{% endif %}
+  </div>
+
+  {% if page.description %}
+    <p style="margin-bottom: var(--space-lg);">{{ page.description }}</p>
   {% endif %}
 
   {% if page.tags %}
-    <p><strong>Tags:</strong>
+    <div class="tag-list" style="margin-bottom: var(--space-lg);">
       {% for tag in page.tags %}
-        <span>{{ tag }}</span>{% unless forloop.last %}, {% endunless %}
+        <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
       {% endfor %}
-    </p>
+    </div>
   {% endif %}
 
   {{ content }}

@@ -1,0 +1,44 @@
+# Known tags for the TeslApp content catalog.
+# All meta.yaml tags must use values from this list.
+# Add new tags here before using them in content submissions.
+
+- holiday
+- christmas
+- halloween
+- thanksgiving
+- fourth-of-july
+- new-years
+- valentines
+- easter
+- patriotic
+- seasonal
+- music
+- beats
+- classical
+- rock
+- pop
+- hip-hop
+- electronic
+- ambient
+- funny
+- meme
+- movie
+- tv-show
+- gaming
+- sci-fi
+- retro
+- animal
+- nature
+- custom
+- original
+- remix
+- minimal
+- colorful
+- animated
+- synchronized
+- tesla
+- cybertruck
+- model-3
+- model-y
+- model-s
+- model-x

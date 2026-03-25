@@ -1,0 +1,6 @@
+<div class="tag-list" style="margin-bottom: var(--space-lg);">
+  <a class="tag" href="{{ site.baseurl }}/tags/">All tags</a>
+  {% for tag in site.data.tags %}
+    <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+  {% endfor %}
+</div>

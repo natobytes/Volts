@@ -1,0 +1,16 @@
+---
+layout: default
+---
+
+<div class="breadcrumb">
+  <a href="{{ site.baseurl }}/">Home</a> &rsaquo; Tags
+</div>
+
+<h1>All Tags</h1>
+<p>Browse content by tag. Each tag page lists all items across every category.</p>
+
+<div class="tag-list" style="margin-top: var(--space-lg); gap: var(--space-sm);">
+  {% for tag in site.data.tags %}
+    <a class="tag" style="font-size: 0.9rem; padding: 0.3rem 0.75rem;" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+  {% endfor %}
+</div>
