@@ -1,0 +1,196 @@
+import * as fs from "fs";
+import * as path from "path";
+import * as yaml from "js-yaml";
+
+const CONTENT_DIR = path.resolve(__dirname, "..", "content");
+const TAGS_FILE = path.join(CONTENT_DIR, "tags.yaml");
+
+const CATEGORIES = [
+  "lightshows",
+  "locksounds",
+  "boombox",
+  "wraps",
+  "hornsounds",
+] as const;
+
+type Category = (typeof CATEGORIES)[number];
+
+// Allowed file extensions per category (excluding meta.yaml)
+const ALLOWED_EXTENSIONS: Record<Category, string[]> = {
+  lightshows: [".fseq", ".mp3"],
+  locksounds: [".wav"],
+  boombox: [".mp3", ".wav", ".ogg"],
+  wraps: [".png", ".jpg", ".jpeg", ".webp", ".svg"],
+  hornsounds: [".mp3", ".wav", ".ogg"],
+};
+
+// Required meta.yaml fields
+const REQUIRED_META_FIELDS = ["title", "author", "description"];
+
+// Max file size: 50 MB
+const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+
+// Slug pattern: lowercase alphanumeric + hyphens
+const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const errors: string[] = [];
+
+function error(msg: string): void {
+  errors.push(msg);
+  console.error(`  ✗ ${msg}`);
+}
+
+function loadKnownTags(): Set<string> {
+  if (!fs.existsSync(TAGS_FILE)) {
+    error(`Tags file not found: ${TAGS_FILE}`);
+    return new Set();
+  }
+  try {
+    const raw = fs.readFileSync(TAGS_FILE, "utf-8");
+    const tags = yaml.load(raw) as string[];
+    if (!Array.isArray(tags)) {
+      error("content/tags.yaml must be a YAML array of strings");
+      return new Set();
+    }
+    return new Set(tags.map((t) => String(t).toLowerCase().trim()));
+  } catch (e) {
+    error(`Failed to parse content/tags.yaml: ${e}`);
+    return new Set();
+  }
+}
+
+function validateSlug(slug: string, category: string): void {
+  if (!SLUG_PATTERN.test(slug)) {
+    error(
+      `${category}/${slug}: folder name must be lowercase alphanumeric with hyphens (got "${slug}")`
+    );
+  }
+}
+
+function validateMeta(
+  meta: Record<string, unknown>,
+  category: string,
+  slug: string,
+  knownTags: Set<string>
+): void {
+  for (const field of REQUIRED_META_FIELDS) {
+    if (!meta[field] || String(meta[field]).trim() === "") {
+      error(`${category}/${slug}/meta.yaml: missing required field "${field}"`);
+    }
+  }
+
+  if (meta.tags !== undefined) {
+    if (!Array.isArray(meta.tags)) {
+      error(`${category}/${slug}/meta.yaml: "tags" must be an array`);
+    } else {
+      for (const tag of meta.tags) {
+        const normalized = String(tag).toLowerCase().trim();
+        if (!knownTags.has(normalized)) {
+          error(
+            `${category}/${slug}/meta.yaml: unknown tag "${tag}". Add it to content/tags.yaml first.`
+          );
+        }
+      }
+    }
+  }
+}
+
+function validateFiles(
+  itemDir: string,
+  category: Category,
+  slug: string
+): void {
+  const allowed = ALLOWED_EXTENSIONS[category];
+  const files = fs
+    .readdirSync(itemDir, { withFileTypes: true })
+    .filter((f) => f.isFile() && f.name !== "meta.yaml");
+
+  if (files.length === 0) {
+    error(
+      `${category}/${slug}: no content files found (expected ${allowed.join(", ")})`
+    );
+    return;
+  }
+
+  for (const file of files) {
+    const ext = path.extname(file.name).toLowerCase();
+
+    // Check extension
+    if (!allowed.includes(ext)) {
+      error(
+        `${category}/${slug}/${file.name}: invalid file type "${ext}" (allowed: ${allowed.join(", ")})`
+      );
+    }
+
+    // Check file size
+    const filePath = path.join(itemDir, file.name);
+    const stat = fs.statSync(filePath);
+    if (stat.size > MAX_FILE_SIZE_BYTES) {
+      const sizeMB = (stat.size / (1024 * 1024)).toFixed(1);
+      error(
+        `${category}/${slug}/${file.name}: file too large (${sizeMB} MB, max 50 MB)`
+      );
+    }
+  }
+}
+
+function main(): void {
+  console.log("Validating content/...\n");
+
+  const knownTags = loadKnownTags();
+  let itemCount = 0;
+
+  for (const category of CATEGORIES) {
+    const categoryDir = path.join(CONTENT_DIR, category);
+    if (!fs.existsSync(categoryDir)) continue;
+
+    const entries = fs
+      .readdirSync(categoryDir, { withFileTypes: true })
+      .filter((d) => d.isDirectory());
+
+    for (const entry of entries) {
+      const slug = entry.name;
+      const itemDir = path.join(categoryDir, slug);
+      const metaPath = path.join(itemDir, "meta.yaml");
+
+      itemCount++;
+
+      // Validate slug naming convention
+      validateSlug(slug, category);
+
+      // Check meta.yaml exists
+      if (!fs.existsSync(metaPath)) {
+        error(`${category}/${slug}: missing meta.yaml`);
+        continue;
+      }
+
+      // Parse and validate meta.yaml
+      let meta: Record<string, unknown>;
+      try {
+        const raw = fs.readFileSync(metaPath, "utf-8");
+        meta = yaml.load(raw) as Record<string, unknown>;
+        if (!meta || typeof meta !== "object") {
+          error(`${category}/${slug}/meta.yaml: invalid YAML (not an object)`);
+          continue;
+        }
+      } catch (e) {
+        error(`${category}/${slug}/meta.yaml: failed to parse YAML: ${e}`);
+        continue;
+      }
+
+      validateMeta(meta, category, slug, knownTags);
+      validateFiles(itemDir, category, slug);
+    }
+  }
+
+  console.log(`\nChecked ${itemCount} items across ${CATEGORIES.length} categories.`);
+
+  if (errors.length > 0) {
+    console.error(`\n${errors.length} validation error(s) found.`);
+    process.exit(1);
+  } else {
+    console.log("\nAll checks passed.");
+  }
+}
+
+main();
