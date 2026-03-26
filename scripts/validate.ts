@@ -157,6 +157,38 @@ function validateFiles(
   }
 }
 
+function validateFilesField(
+  meta: Record<string, unknown>,
+  category: string,
+  slug: string,
+  itemDir: string
+): void {
+  if (meta.files === undefined) return;
+
+  if (!Array.isArray(meta.files)) {
+    error(`${category}/${slug}/meta.yaml: "files" must be an array`);
+    return;
+  }
+
+  for (const entry of meta.files) {
+    if (!entry || typeof entry !== "object") {
+      error(`${category}/${slug}/meta.yaml: each entry in "files" must be an object with a "name" field`);
+      continue;
+    }
+    const fileEntry = entry as Record<string, unknown>;
+    if (!fileEntry.name || typeof fileEntry.name !== "string" || fileEntry.name.trim() === "") {
+      error(`${category}/${slug}/meta.yaml: each entry in "files" must have a non-empty "name" string`);
+      continue;
+    }
+    const filePath = path.join(itemDir, String(fileEntry.name));
+    if (!fs.existsSync(filePath)) {
+      error(
+        `${category}/${slug}/meta.yaml: file "${fileEntry.name}" listed in "files" not found on disk`
+      );
+    }
+  }
+}
+
 function main(): void {
   console.log("Validating content/...\n");
 
@@ -203,6 +235,7 @@ function main(): void {
 
       validateMeta(meta, category, slug, knownTags, itemDir);
       validateFiles(itemDir, category, slug);
+      validateFilesField(meta, category, slug, itemDir);
     }
   }
 

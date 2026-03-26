@@ -3,6 +3,9 @@ title: R2D2 Beep
 author: Volts Team
 description: A fun sci-fi inspired lock chime sound.
 audio: sample-chime.wav
+files:
+  - name: sample-chime.wav
+    label: Lock Sound
 tags:
   - sci-fi
   - funny

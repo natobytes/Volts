@@ -58,5 +58,20 @@ layout: default
     {% endif %}
   {% endif %}
 
+  {% if page.files and page.files.size > 0 %}
+    <div class="downloads-section">
+      <h2>Downloads</h2>
+      <div class="download-list">
+        {% for file in page.files %}
+          {% assign file_ext = file.name | split: "." | last | prepend: "." %}
+          <a class="download-link" href="{{ site.baseurl }}/content/{{ col_name }}/{{ page.slug }}/{{ file.name }}" download>
+            <span class="download-label">{{ file.label | default: file.name }}</span>
+            <span class="download-ext">{{ file_ext }}</span>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
   {{ content }}
 </article>
