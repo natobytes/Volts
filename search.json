@@ -2,13 +2,12 @@
 layout: null
 ---
 [
-  {% assign content_pages = "" | split: "" %}
   {% assign categories = "lightshows,locksounds,boombox,wraps,hornsounds" | split: "," %}
-  {% for pg in site.pages %}
-    {% for cat in categories %}
-      {% assign cat_prefix = "content/" | append: cat | append: "/" %}
-      {% if pg.path contains cat_prefix and pg.title %}
-        {% assign content_pages = content_pages | push: pg %}
+  {% assign content_pages = "" | split: "" %}
+  {% for cat in categories %}
+    {% for item in site[cat] %}
+      {% if item.title %}
+        {% assign content_pages = content_pages | push: item %}
       {% endif %}
     {% endfor %}
   {% endfor %}
@@ -18,7 +17,7 @@ layout: null
     "description": {{ item.description | default: "" | jsonify }},
     "tags": {{ item.tags | default: "" | jsonify }},
     "author": {{ item.author | default: "" | jsonify }},
-    "category": {% assign found_cat = "" %}{% for cat in categories %}{% assign cat_prefix = "content/" | append: cat | append: "/" %}{% if item.path contains cat_prefix %}{% assign found_cat = cat %}{% endif %}{% endfor %}{{ found_cat | jsonify }},
+    "category": {{ item.collection | jsonify }},
     "url": "{{ item.url | relative_url }}"
   }{% unless forloop.last %},{% endunless %}
   {% endfor %}
