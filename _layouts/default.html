@@ -150,6 +150,74 @@
 
     .category-section { margin-bottom: var(--space-xl); }
 
+    /* Search */
+    .site-search {
+      position: relative;
+      margin-left: auto;
+    }
+
+    #search-input {
+      font-size: 0.9rem;
+      padding: var(--space-xs) var(--space-sm);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      background: var(--color-bg);
+      color: var(--color-text);
+      width: 200px;
+      transition: width 0.2s;
+    }
+    #search-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      width: 260px;
+    }
+
+    .search-results {
+      position: absolute;
+      top: 100%;
+      right: 0;
+      width: 320px;
+      max-height: 400px;
+      overflow-y: auto;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      z-index: 100;
+      margin-top: var(--space-xs);
+    }
+
+    .search-results a {
+      display: block;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text);
+      font-size: 0.9rem;
+    }
+    .search-results a:last-child { border-bottom: none; }
+    .search-results a:hover { background: var(--color-bg); text-decoration: none; }
+    .search-results .result-collection {
+      font-size: 0.75rem;
+      color: var(--color-muted);
+      text-transform: capitalize;
+    }
+    .search-results .no-results {
+      padding: var(--space-sm) var(--space-md);
+      color: var(--color-muted);
+      font-size: 0.9rem;
+    }
+
+    /* Wrap gallery */
+    .wrap-gallery img {
+      max-width: 100%;
+      height: auto;
+      border-radius: var(--radius);
+      margin-bottom: var(--space-md);
+    }
+
+    /* GLightbox overrides for theme compatibility */
+    .glightbox-clean .gslide-description { background: var(--color-surface); color: var(--color-text); }
+
     .site-footer {
       border-top: 1px solid var(--color-border);
       padding: var(--space-lg);
@@ -164,6 +232,7 @@
       .card-grid { grid-template-columns: 1fr; }
     }
   </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
 </head>
 <body>
   <header class="site-header">
@@ -178,5 +247,97 @@
   <footer class="site-footer">
     <p>Made with ❤️ by NatoBytes</p>
   </footer>
+  <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/js/glightbox.min.js"></script>
+  <script>
+    // Client-side search
+    (function() {
+      var searchInput = document.getElementById('search-input');
+      var searchResults = document.getElementById('search-results');
+      var searchData = null;
+
+      function loadSearchData(callback) {
+        if (searchData) return callback(searchData);
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', '{{ site.baseurl }}/search.json');
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            searchData = JSON.parse(xhr.responseText);
+            callback(searchData);
+          }
+        };
+        xhr.send();
+      }
+
+      function search(query, data) {
+        var q = query.toLowerCase().trim();
+        if (!q) return [];
+        var terms = q.split(/\s+/);
+        return data.filter(function(item) {
+          var haystack = [
+            item.title || '',
+            item.description || '',
+            (Array.isArray(item.tags) ? item.tags.join(' ') : item.tags || ''),
+            item.author || '',
+            item.collection || ''
+          ].join(' ').toLowerCase();
+          return terms.every(function(term) {
+            return haystack.indexOf(term) !== -1;
+          });
+        }).slice(0, 10);
+      }
+
+      function renderResults(results) {
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="no-results">No results found</div>';
+          searchResults.hidden = false;
+          return;
+        }
+        var html = results.map(function(item) {
+          return '<a href="' + item.url + '">' +
+            '<strong>' + escapeHtml(item.title) + '</strong><br>' +
+            '<span class="result-collection">' + escapeHtml(item.collection) + '</span>' +
+            '</a>';
+        }).join('');
+        searchResults.innerHTML = html;
+        searchResults.hidden = false;
+      }
+
+      function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+      }
+
+      searchInput.addEventListener('input', function() {
+        var query = this.value;
+        if (query.length < 2) {
+          searchResults.hidden = true;
+          return;
+        }
+        loadSearchData(function(data) {
+          var results = search(query, data);
+          renderResults(results);
+        });
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.hidden = true;
+        }
+      });
+
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          searchResults.hidden = true;
+          searchInput.blur();
+        }
+      });
+    })();
+
+    // GLightbox for wrap gallery images
+    if (document.querySelector('.glightbox')) {
+      GLightbox({ selector: '.glightbox' });
+    }
+  </script>
 </body>
 </html>

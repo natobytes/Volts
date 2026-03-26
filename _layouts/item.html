@@ -38,5 +38,25 @@ layout: default
     </div>
   {% endif %}
 
-  {{ content }}
+  {% if col_name == "wraps" %}
+    <div class="wrap-gallery">
+      {{ content }}
+    </div>
+    <script>
+      document.querySelectorAll('.wrap-gallery img').forEach(function(img) {
+        if (img.parentElement.tagName === 'A') return;
+        var a = document.createElement('a');
+        a.href = img.src;
+        a.classList.add('glightbox');
+        a.setAttribute('data-gallery', 'wrap-gallery');
+        a.setAttribute('data-description', img.alt || '');
+        img.parentElement.insertBefore(a, img);
+        a.appendChild(img);
+        img.style.cursor = 'zoom-in';
+      });
+      GLightbox({ selector: '.glightbox' });
+    </script>
+  {% else %}
+    {{ content }}
+  {% endif %}
 </article>

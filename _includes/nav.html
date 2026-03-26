@@ -8,3 +8,7 @@
     <li><a href="{{ site.baseurl }}/tags/" {% if page.layout == "tags" or page.layout == "tag" %}class="active"{% endif %}>Tags</a></li>
   </ul>
 </nav>
+<div class="site-search">
+  <input type="search" id="search-input" placeholder="Search items..." autocomplete="off" aria-label="Search items">
+  <div id="search-results" class="search-results" hidden></div>
+</div>

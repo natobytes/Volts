@@ -9,3 +9,5 @@ tags:
 ---
 
 A sample wrap design featuring a matte black finish for the Cybertruck.
+
+![Cybertruck Matte Black wrap preview]({{ site.baseurl }}/content/wraps/sample-wrap/sample-wrap.png)
