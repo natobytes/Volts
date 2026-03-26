@@ -27,7 +27,7 @@
       --color-tag-bg: #e8f0fe;
       --color-tag-text: #1e40af;
       --color-card-shadow: rgba(0,0,0,0.08);
-      --max-width: 960px;
+      --max-width: 1200px;
       --space-xs: 0.25rem;
       --space-sm: 0.5rem;
       --space-md: 1rem;
@@ -219,6 +219,25 @@
     .theme-toggle:hover {
       color: var(--color-accent);
       border-color: var(--color-accent);
+    }
+
+    .audio-player {
+      margin: var(--space-lg) 0;
+      padding: var(--space-lg);
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+    }
+
+    .audio-player audio {
+      width: 100%;
+      border-radius: var(--radius);
+    }
+
+    .audio-player-label {
+      font-size: 0.85rem;
+      color: var(--color-muted);
+      margin-bottom: var(--space-sm);
     }
 
     @media (max-width: 600px) {

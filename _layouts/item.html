@@ -38,5 +38,18 @@ layout: default
     </div>
   {% endif %}
 
+  {% if page.audio %}
+    {% assign audio_categories = "locksounds,hornsounds,boombox,lightshows" | split: "," %}
+    {% if audio_categories contains col_name %}
+      <div class="audio-player">
+        <p class="audio-player-label">Listen</p>
+        <audio controls preload="metadata">
+          <source src="{{ site.baseurl }}/content/{{ col_name }}/{{ page.slug }}/{{ page.audio }}">
+          Your browser does not support the audio element.
+        </audio>
+      </div>
+    {% endif %}
+  {% endif %}
+
   {{ content }}
 </article>
