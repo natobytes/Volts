@@ -2,8 +2,20 @@ import * as fs from "fs";
 import * as path from "path";
 import * as yaml from "js-yaml";
 
-const CONTENT_DIR = path.resolve(__dirname, "..", "content");
-const OUTPUT_DIR = path.resolve(__dirname, "..", "public", "api");
+const ROOT_DIR = path.resolve(__dirname, "..");
+const CONTENT_DIR = path.join(ROOT_DIR, "content");
+const OUTPUT_DIR = path.join(ROOT_DIR, "public", "api");
+const CONFIG_PATH = path.join(ROOT_DIR, "_config.yml");
+
+function readBaseUrl(): string {
+  try {
+    const raw = fs.readFileSync(CONFIG_PATH, "utf-8");
+    const config = yaml.load(raw) as Record<string, unknown>;
+    return typeof config.baseurl === "string" ? config.baseurl : "";
+  } catch {
+    return "";
+  }
+}
 
 const CATEGORIES = [
   "lightshows",
@@ -22,6 +34,11 @@ interface ItemMeta {
   [key: string]: unknown;
 }
 
+interface FileEntry {
+  name: string;
+  downloadUrl: string;
+}
+
 interface CatalogItem {
   slug: string;
   category: string;
@@ -30,7 +47,7 @@ interface CatalogItem {
   description: string;
   tags: string[];
   thumbnail: string | null;
-  files: string[];
+  files: FileEntry[];
   meta: ItemMeta;
 }
 
@@ -52,14 +69,18 @@ function listItemDirs(categoryDir: string): string[] {
     .map((d) => d.name);
 }
 
-function listFiles(dir: string): string[] {
+function listFiles(dir: string, baseUrl: string, category: string, slug: string): FileEntry[] {
   return fs
     .readdirSync(dir, { withFileTypes: true })
     .filter((f) => f.isFile() && f.name !== "meta.yaml")
-    .map((f) => f.name);
+    .map((f) => ({
+      name: f.name,
+      downloadUrl: `${baseUrl}/content/${category}/${slug}/${f.name}`,
+    }));
 }
 
 function buildCatalog(): CatalogItem[] {
+  const baseUrl = readBaseUrl();
   const items: CatalogItem[] = [];
 
   for (const category of CATEGORIES) {
@@ -75,6 +96,16 @@ function buildCatalog(): CatalogItem[] {
       const meta = readMetaYaml(metaPath);
       if (!meta) continue;
 
+      // Add downloadUrl to meta.files entries if present
+      if (Array.isArray(meta.files)) {
+        for (const file of meta.files) {
+          if (typeof file === "object" && file !== null && "name" in file) {
+            (file as Record<string, unknown>).downloadUrl =
+              `${baseUrl}/content/${category}/${slug}/${(file as Record<string, unknown>).name}`;
+          }
+        }
+      }
+
       items.push({
         slug,
         category,
@@ -83,7 +114,7 @@ function buildCatalog(): CatalogItem[] {
         description: meta.description || "",
         tags: Array.isArray(meta.tags) ? meta.tags : [],
         thumbnail: typeof meta.thumbnail === "string" ? meta.thumbnail : null,
-        files: listFiles(itemDir),
+        files: listFiles(itemDir, baseUrl, category, slug),
         meta,
       });
     }
