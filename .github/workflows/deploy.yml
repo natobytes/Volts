@@ -15,7 +15,7 @@ concurrency:
 
 jobs:
   build:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -26,23 +26,13 @@ jobs:
       - run: npm install
       - run: npm run build
 
-      - name: Setup Ruby via Homebrew
-        run: |
-          echo "$(brew --prefix ruby)/bin" >> $GITHUB_PATH
-          export PATH="$(brew --prefix ruby)/bin:$PATH"
-          GEM_DIR="$(ruby -e 'puts Gem.user_dir')/bin"
-          echo "$GEM_DIR" >> $GITHUB_PATH
-
-      - name: Install Jekyll dependencies
-        run: |
-          export PATH="$(brew --prefix ruby)/bin:$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
-          gem install bundler --user-install --no-document
-          bundle install
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
 
       - name: Build Jekyll site
-        run: |
-          export PATH="$(brew --prefix ruby)/bin:$(ruby -e 'puts Gem.user_dir')/bin:$PATH"
-          bundle exec jekyll build
+        run: bundle exec jekyll build
         env:
           JEKYLL_ENV: production
 
@@ -55,7 +45,7 @@ jobs:
 
   deploy:
     needs: build
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
