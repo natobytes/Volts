@@ -5,10 +5,10 @@
 ### Checklist
 
 #### Required files
-- [ ] `meta.yaml` with all required fields
+- [ ] `<slug>.md` with frontmatter containing all required fields
 - [ ] `.wav` audio file
 
-#### meta.yaml fields
+#### Frontmatter fields (in `<slug>.md`)
 - [ ] `title` — display name for this lock sound
 - [ ] `author` — creator name or handle
 - [ ] `description` — brief description of the lock sound

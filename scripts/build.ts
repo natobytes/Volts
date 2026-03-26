@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as yaml from "js-yaml";
+import matter from "gray-matter";
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const CONTENT_DIR = path.join(ROOT_DIR, "content");
@@ -51,10 +52,11 @@ interface CatalogItem {
   meta: ItemMeta;
 }
 
-function readMetaYaml(filePath: string): ItemMeta | null {
+function readFrontmatter(filePath: string): ItemMeta | null {
   try {
     const raw = fs.readFileSync(filePath, "utf-8");
-    return yaml.load(raw) as ItemMeta;
+    const { data } = matter(raw);
+    return data as ItemMeta;
   } catch {
     console.warn(`Warning: could not read ${filePath}, skipping.`);
     return null;
@@ -72,7 +74,7 @@ function listItemDirs(categoryDir: string): string[] {
 function listFiles(dir: string, baseUrl: string, category: string, slug: string): FileEntry[] {
   return fs
     .readdirSync(dir, { withFileTypes: true })
-    .filter((f) => f.isFile() && f.name !== "meta.yaml")
+    .filter((f) => f.isFile())
     .map((f) => ({
       name: f.name,
       downloadUrl: `${baseUrl}/content/${category}/${slug}/${f.name}`,
@@ -89,11 +91,11 @@ function buildCatalog(): CatalogItem[] {
 
     for (const slug of slugs) {
       const itemDir = path.join(categoryDir, slug);
-      const metaPath = path.join(itemDir, "meta.yaml");
+      const mdPath = path.join(categoryDir, `${slug}.md`);
 
-      if (!fs.existsSync(metaPath)) continue;
+      if (!fs.existsSync(mdPath)) continue;
 
-      const meta = readMetaYaml(metaPath);
+      const meta = readFrontmatter(mdPath);
       if (!meta) continue;
 
       // Add downloadUrl to meta.files entries if present

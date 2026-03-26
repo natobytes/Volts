@@ -5,10 +5,10 @@
 ### Checklist
 
 #### Required files
-- [ ] `meta.yaml` with all required fields
+- [ ] `<slug>.md` with frontmatter containing all required fields
 - [ ] Image file: `.png`, `.jpg`, `.jpeg`, `.webp`, or `.svg`
 
-#### meta.yaml fields
+#### Frontmatter fields (in `<slug>.md`)
 - [ ] `title` — display name for this wrap design
 - [ ] `author` — creator name or handle
 - [ ] `description` — brief description of the wrap
