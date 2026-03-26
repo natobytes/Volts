@@ -190,13 +190,37 @@ function validateFilesField(
   }
 }
 
+function parseArgs(): { collection?: Category } {
+  const args = process.argv.slice(2);
+  const collectionIdx = args.indexOf("--collection");
+  if (collectionIdx === -1) return {};
+
+  const name = args[collectionIdx + 1];
+  if (!name) {
+    console.error("Error: --collection requires a value. Valid collections: " + CATEGORIES.join(", "));
+    process.exit(1);
+  }
+  if (!CATEGORIES.includes(name as Category)) {
+    console.error(`Error: unknown collection "${name}". Valid collections: ${CATEGORIES.join(", ")}`);
+    process.exit(1);
+  }
+  return { collection: name as Category };
+}
+
 function main(): void {
-  console.log("Validating content/...\n");
+  const { collection } = parseArgs();
+  const categoriesToValidate = collection ? [collection] : CATEGORIES;
+
+  console.log(
+    collection
+      ? `Validating content/_${collection}/...\n`
+      : "Validating content/...\n"
+  );
 
   const knownTags = loadKnownTags();
   let itemCount = 0;
 
-  for (const category of CATEGORIES) {
+  for (const category of categoriesToValidate) {
     const categoryDir = path.join(CONTENT_DIR, `_${category}`);
     if (!fs.existsSync(categoryDir)) continue;
 
@@ -241,7 +265,7 @@ function main(): void {
     }
   }
 
-  console.log(`\nChecked ${itemCount} items across ${CATEGORIES.length} categories.`);
+  console.log(`\nChecked ${itemCount} items across ${categoriesToValidate.length} categor${categoriesToValidate.length === 1 ? "y" : "ies"}.`);
 
   if (errors.length > 0) {
     console.error(`\n${errors.length} validation error(s) found.`);
