@@ -84,7 +84,7 @@ function buildCatalog(): CatalogItem[] {
   const items: CatalogItem[] = [];
 
   for (const category of CATEGORIES) {
-    const categoryDir = path.join(CONTENT_DIR, category);
+    const categoryDir = path.join(CONTENT_DIR, `_${category}`);
     const slugs = listItemDirs(categoryDir);
 
     for (const slug of slugs) {

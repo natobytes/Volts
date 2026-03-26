@@ -15,7 +15,7 @@
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure
-- [ ] Folder placed in `content/locksounds/<slug>/`
+- [ ] Folder placed in `content/_locksounds/<slug>/`
 - [ ] Slug is lowercase alphanumeric with hyphens (e.g. `r2d2-beep`)
 - [ ] No file exceeds 50 MB
 

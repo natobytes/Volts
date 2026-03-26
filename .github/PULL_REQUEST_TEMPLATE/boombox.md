@@ -15,7 +15,7 @@
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure
-- [ ] Folder placed in `content/boombox/<slug>/`
+- [ ] Folder placed in `content/_boombox/<slug>/`
 - [ ] Slug is lowercase alphanumeric with hyphens (e.g. `chill-vibes`)
 - [ ] No file exceeds 50 MB
 
