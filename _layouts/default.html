@@ -13,6 +13,7 @@
       document.documentElement.setAttribute('data-theme', theme);
     })();
   </script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/css/glightbox.min.css">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -213,7 +214,6 @@
       padding: 0.3rem 0.5rem;
       font-size: 1.1rem;
       line-height: 1;
-      margin-left: auto;
       transition: color 0.15s, border-color 0.15s;
     }
     .theme-toggle:hover {
@@ -240,10 +240,92 @@
       margin-bottom: var(--space-sm);
     }
 
+    .search-wrapper {
+      position: relative;
+      margin-left: auto;
+      margin-right: var(--space-sm);
+    }
+
+    .search-input {
+      background: var(--color-bg);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      color: var(--color-text);
+      font-size: 0.85rem;
+      padding: 0.35rem 0.6rem 0.35rem 1.8rem;
+      width: 180px;
+      transition: width 0.2s, border-color 0.2s;
+    }
+    .search-input:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      width: 240px;
+    }
+    .search-input::placeholder { color: var(--color-muted); }
+
+    .search-icon {
+      position: absolute;
+      left: 0.55rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      font-size: 0.85rem;
+      pointer-events: none;
+    }
+
+    .search-results {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      margin-top: 4px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius);
+      box-shadow: 0 4px 12px var(--color-card-shadow);
+      max-height: 360px;
+      overflow-y: auto;
+      z-index: 100;
+      min-width: 280px;
+    }
+    .search-results.active { display: block; }
+
+    .search-result-item {
+      display: block;
+      padding: var(--space-sm) var(--space-md);
+      border-bottom: 1px solid var(--color-border);
+      text-decoration: none;
+      color: var(--color-text);
+    }
+    .search-result-item:last-child { border-bottom: none; }
+    .search-result-item:hover {
+      background: var(--color-tag-bg);
+      text-decoration: none;
+      color: var(--color-text);
+    }
+    .search-result-title { font-weight: 600; font-size: 0.9rem; }
+    .search-result-meta { font-size: 0.75rem; color: var(--color-muted); }
+
+    .search-no-results {
+      padding: var(--space-md);
+      color: var(--color-muted);
+      font-size: 0.85rem;
+      text-align: center;
+    }
+
+    .card-thumb-link {
+      display: block;
+      cursor: zoom-in;
+    }
+
     @media (max-width: 600px) {
       .site-header-inner { flex-direction: column; align-items: flex-start; }
       main { padding: 0 var(--space-md); margin: var(--space-lg) auto; }
       .card-grid { grid-template-columns: 1fr; }
+      .search-wrapper { margin-left: 0; width: 100%; }
+      .search-input { width: 100%; }
+      .search-input:focus { width: 100%; }
     }
   </style>
 </head>
@@ -252,6 +334,11 @@
     <div class="site-header-inner">
       <a class="site-title" href="{{ site.baseurl }}/">{{ site.title }}</a>
       {% include nav.html %}
+      <div class="search-wrapper">
+        <span class="search-icon">&#x1F50D;</span>
+        <input class="search-input" id="search-input" type="text" placeholder="Search content..." aria-label="Search content">
+        <div class="search-results" id="search-results"></div>
+      </div>
       <button class="theme-toggle" id="theme-toggle" type="button" aria-label="Toggle dark mode">
         <span class="theme-toggle-icon"></span>
       </button>
@@ -291,6 +378,124 @@
           document.documentElement.setAttribute('data-theme', theme);
           updateIcon();
         }
+      });
+    })();
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/lunr@2.3.9/lunr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/glightbox@3.3.0/dist/js/glightbox.min.js"></script>
+  <script>
+    // Client-side search
+    (function() {
+      var searchInput = document.getElementById('search-input');
+      var searchResults = document.getElementById('search-results');
+      var searchData = null;
+      var searchIndex = null;
+
+      function loadSearchIndex() {
+        if (searchData) return Promise.resolve();
+        return fetch('{{ site.baseurl }}/search.json')
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            searchData = data;
+            searchIndex = lunr(function() {
+              this.ref('url');
+              this.field('title', { boost: 10 });
+              this.field('description', { boost: 5 });
+              this.field('tags', { boost: 7 });
+              this.field('author', { boost: 2 });
+              this.field('category', { boost: 3 });
+              data.forEach(function(item) {
+                var doc = {
+                  url: item.url,
+                  title: item.title,
+                  description: item.description,
+                  tags: Array.isArray(item.tags) ? item.tags.join(' ') : item.tags,
+                  author: item.author,
+                  category: item.category
+                };
+                this.add(doc);
+              }, this);
+            });
+          });
+      }
+
+      function getItem(url) {
+        for (var i = 0; i < searchData.length; i++) {
+          if (searchData[i].url === url) return searchData[i];
+        }
+        return null;
+      }
+
+      var categoryLabels = {
+        lightshows: 'Light Shows',
+        locksounds: 'Lock Sounds',
+        boombox: 'Boombox',
+        wraps: 'Wraps',
+        hornsounds: 'Horn Sounds'
+      };
+
+      function renderResults(results) {
+        if (results.length === 0) {
+          searchResults.innerHTML = '<div class="search-no-results">No results found</div>';
+          searchResults.classList.add('active');
+          return;
+        }
+        var html = '';
+        results.slice(0, 8).forEach(function(r) {
+          var item = getItem(r.ref);
+          if (!item) return;
+          var cat = categoryLabels[item.category] || item.category;
+          html += '<a class="search-result-item" href="' + item.url + '">' +
+            '<div class="search-result-title">' + item.title + '</div>' +
+            '<div class="search-result-meta">' + cat +
+            (item.author ? ' &middot; ' + item.author : '') + '</div>' +
+            '</a>';
+        });
+        searchResults.innerHTML = html;
+        searchResults.classList.add('active');
+      }
+
+      searchInput.addEventListener('focus', function() {
+        loadSearchIndex();
+      });
+
+      searchInput.addEventListener('input', function() {
+        var query = this.value.trim();
+        if (query.length < 2) {
+          searchResults.classList.remove('active');
+          return;
+        }
+        loadSearchIndex().then(function() {
+          try {
+            var results = searchIndex.search(query + '~1 ' + query + '*');
+            renderResults(results);
+          } catch(e) {
+            var results = searchIndex.search(query);
+            renderResults(results);
+          }
+        });
+      });
+
+      document.addEventListener('click', function(e) {
+        if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+          searchResults.classList.remove('active');
+        }
+      });
+
+      searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          searchResults.classList.remove('active');
+          searchInput.blur();
+        }
+      });
+    })();
+
+    // Image lightbox
+    (function() {
+      var lightbox = GLightbox({
+        selector: '.glightbox',
+        touchNavigation: true,
+        closeOnOutsideClick: true
       });
     })();
   </script>

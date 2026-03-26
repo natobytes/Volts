@@ -26,6 +26,13 @@ layout: default
     {% if page.collection %}<span>{{ category_label }}</span>{% endif %}
   </div>
 
+  {% if page.thumbnail %}
+    {% assign item_thumb = site.baseurl | append: "/content/" | append: col_name | append: "/" | append: page.slug | append: "/" | append: page.thumbnail %}
+    <a class="glightbox" href="{{ item_thumb }}" data-title="{{ page.title }}">
+      <img src="{{ item_thumb }}" alt="{{ page.title }}" style="max-width: 100%; border-radius: var(--radius); margin-bottom: var(--space-lg); cursor: zoom-in;" loading="lazy">
+    </a>
+  {% endif %}
+
   {% if page.description %}
     <p style="margin-bottom: var(--space-lg);">{{ page.description }}</p>
   {% endif %}
