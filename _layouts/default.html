@@ -99,10 +99,21 @@
       background: var(--color-surface);
       border: 1px solid var(--color-border);
       border-radius: var(--radius);
-      padding: var(--space-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
       transition: box-shadow 0.15s;
     }
     .card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+    .card-thumbnail {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .card-body { padding: var(--space-lg); }
 
     .card h3 { font-size: 1.1rem; margin-bottom: var(--space-xs); }
     .card p { font-size: 0.9rem; color: var(--color-muted); margin-bottom: var(--space-sm); }
