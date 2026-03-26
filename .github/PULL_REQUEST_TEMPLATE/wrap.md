@@ -15,7 +15,7 @@
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure
-- [ ] Folder placed in `content/wraps/<slug>/`
+- [ ] Folder placed in `content/_wraps/<slug>/`
 - [ ] Slug is lowercase alphanumeric with hyphens (e.g. `matte-black`)
 - [ ] No file exceeds 50 MB
 

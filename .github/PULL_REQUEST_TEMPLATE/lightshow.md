@@ -16,7 +16,7 @@
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure
-- [ ] Folder placed in `content/lightshows/<slug>/`
+- [ ] Folder placed in `content/_lightshows/<slug>/`
 - [ ] Slug is lowercase alphanumeric with hyphens (e.g. `holiday-special`)
 - [ ] No file exceeds 50 MB
 

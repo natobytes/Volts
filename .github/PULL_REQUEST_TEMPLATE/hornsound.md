@@ -15,7 +15,7 @@
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure
-- [ ] Folder placed in `content/hornsounds/<slug>/`
+- [ ] Folder placed in `content/_hornsounds/<slug>/`
 - [ ] Slug is lowercase alphanumeric with hyphens (e.g. `la-cucaracha`)
 - [ ] No file exceeds 50 MB
 
