@@ -1,6 +1,7 @@
 import * as fs from "fs";
 import * as path from "path";
 import * as yaml from "js-yaml";
+import matter from "gray-matter";
 
 const CONTENT_DIR = path.resolve(__dirname, "..", "content");
 const TAGS_FILE = path.join(CONTENT_DIR, "tags.yaml");
@@ -24,7 +25,7 @@ const ALLOWED_EXTENSIONS: Record<Category, string[]> = {
   hornsounds: [".mp3", ".wav", ".ogg"],
 };
 
-// Required meta.yaml fields
+// Required frontmatter fields
 const REQUIRED_META_FIELDS = ["title", "author", "description"];
 
 // Max file size: 50 MB
@@ -79,19 +80,19 @@ function validateMeta(
 ): void {
   for (const field of REQUIRED_META_FIELDS) {
     if (!meta[field] || String(meta[field]).trim() === "") {
-      error(`${category}/${slug}/meta.yaml: missing required field "${field}"`);
+      error(`${category}/${slug}.md: missing required field "${field}"`);
     }
   }
 
   if (meta.tags !== undefined) {
     if (!Array.isArray(meta.tags)) {
-      error(`${category}/${slug}/meta.yaml: "tags" must be an array`);
+      error(`${category}/${slug}.md: "tags" must be an array`);
     } else {
       for (const tag of meta.tags) {
         const normalized = String(tag).toLowerCase().trim();
         if (!knownTags.has(normalized)) {
           error(
-            `${category}/${slug}/meta.yaml: unknown tag "${tag}". Add it to content/tags.yaml first.`
+            `${category}/${slug}.md: unknown tag "${tag}". Add it to content/tags.yaml first.`
           );
         }
       }
@@ -100,18 +101,18 @@ function validateMeta(
 
   if (meta.thumbnail !== undefined) {
     if (typeof meta.thumbnail !== "string" || meta.thumbnail.trim() === "") {
-      error(`${category}/${slug}/meta.yaml: "thumbnail" must be a non-empty string`);
+      error(`${category}/${slug}.md: "thumbnail" must be a non-empty string`);
     } else {
       const thumbExt = path.extname(String(meta.thumbnail)).toLowerCase();
       if (!THUMBNAIL_EXTENSIONS.includes(thumbExt)) {
         error(
-          `${category}/${slug}/meta.yaml: thumbnail "${meta.thumbnail}" has invalid extension "${thumbExt}" (allowed: ${THUMBNAIL_EXTENSIONS.join(", ")})`
+          `${category}/${slug}.md: thumbnail "${meta.thumbnail}" has invalid extension "${thumbExt}" (allowed: ${THUMBNAIL_EXTENSIONS.join(", ")})`
         );
       }
       const thumbPath = path.join(itemDir, String(meta.thumbnail));
       if (!fs.existsSync(thumbPath)) {
         error(
-          `${category}/${slug}/meta.yaml: thumbnail file "${meta.thumbnail}" not found`
+          `${category}/${slug}.md: thumbnail file "${meta.thumbnail}" not found`
         );
       }
     }
@@ -126,7 +127,7 @@ function validateFiles(
   const allowed = ALLOWED_EXTENSIONS[category];
   const files = fs
     .readdirSync(itemDir, { withFileTypes: true })
-    .filter((f) => f.isFile() && f.name !== "meta.yaml");
+    .filter((f) => f.isFile());
 
   if (files.length === 0) {
     error(
@@ -166,24 +167,24 @@ function validateFilesField(
   if (meta.files === undefined) return;
 
   if (!Array.isArray(meta.files)) {
-    error(`${category}/${slug}/meta.yaml: "files" must be an array`);
+    error(`${category}/${slug}.md: "files" must be an array`);
     return;
   }
 
   for (const entry of meta.files) {
     if (!entry || typeof entry !== "object") {
-      error(`${category}/${slug}/meta.yaml: each entry in "files" must be an object with a "name" field`);
+      error(`${category}/${slug}.md: each entry in "files" must be an object with a "name" field`);
       continue;
     }
     const fileEntry = entry as Record<string, unknown>;
     if (!fileEntry.name || typeof fileEntry.name !== "string" || fileEntry.name.trim() === "") {
-      error(`${category}/${slug}/meta.yaml: each entry in "files" must have a non-empty "name" string`);
+      error(`${category}/${slug}.md: each entry in "files" must have a non-empty "name" string`);
       continue;
     }
     const filePath = path.join(itemDir, String(fileEntry.name));
     if (!fs.existsSync(filePath)) {
       error(
-        `${category}/${slug}/meta.yaml: file "${fileEntry.name}" listed in "files" not found on disk`
+        `${category}/${slug}.md: file "${fileEntry.name}" listed in "files" not found on disk`
       );
     }
   }
@@ -196,7 +197,7 @@ function main(): void {
   let itemCount = 0;
 
   for (const category of CATEGORIES) {
-    const categoryDir = path.join(CONTENT_DIR, category);
+    const categoryDir = path.join(CONTENT_DIR, `_${category}`);
     if (!fs.existsSync(categoryDir)) continue;
 
     const entries = fs
@@ -206,30 +207,31 @@ function main(): void {
     for (const entry of entries) {
       const slug = entry.name;
       const itemDir = path.join(categoryDir, slug);
-      const metaPath = path.join(itemDir, "meta.yaml");
+      const mdPath = path.join(categoryDir, `${slug}.md`);
 
       itemCount++;
 
       // Validate slug naming convention
       validateSlug(slug, category);
 
-      // Check meta.yaml exists
-      if (!fs.existsSync(metaPath)) {
-        error(`${category}/${slug}: missing meta.yaml`);
+      // Check .md file exists
+      if (!fs.existsSync(mdPath)) {
+        error(`${category}/${slug}: missing ${slug}.md`);
         continue;
       }
 
-      // Parse and validate meta.yaml
+      // Parse and validate frontmatter
       let meta: Record<string, unknown>;
       try {
-        const raw = fs.readFileSync(metaPath, "utf-8");
-        meta = yaml.load(raw) as Record<string, unknown>;
+        const raw = fs.readFileSync(mdPath, "utf-8");
+        const { data } = matter(raw);
+        meta = data as Record<string, unknown>;
         if (!meta || typeof meta !== "object") {
-          error(`${category}/${slug}/meta.yaml: invalid YAML (not an object)`);
+          error(`${category}/${slug}.md: invalid frontmatter (not an object)`);
           continue;
         }
       } catch (e) {
-        error(`${category}/${slug}/meta.yaml: failed to parse YAML: ${e}`);
+        error(`${category}/${slug}.md: failed to parse frontmatter: ${e}`);
         continue;
       }
 

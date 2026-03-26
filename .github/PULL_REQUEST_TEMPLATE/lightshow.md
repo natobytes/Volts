@@ -5,11 +5,11 @@
 ### Checklist
 
 #### Required files
-- [ ] `meta.yaml` with all required fields
+- [ ] `<slug>.md` with frontmatter containing all required fields
 - [ ] `.fseq` sequence file
 - [ ] `.mp3` audio file (optional but recommended)
 
-#### meta.yaml fields
+#### Frontmatter fields (in `<slug>.md`)
 - [ ] `title` — display name for this light show
 - [ ] `author` — creator name or handle
 - [ ] `description` — brief description of the light show
