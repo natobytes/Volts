@@ -2,6 +2,7 @@
 title: Holiday Special
 author: Volts Team
 description: A festive light show sequence with synchronized holiday music.
+audio: sample-show.mp3
 tags:
   - holiday
   - christmas
