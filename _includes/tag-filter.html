@@ -1,6 +1,14 @@
 <div class="tag-list" style="margin-bottom: var(--space-lg);">
   <a class="tag" href="{{ site.baseurl }}/tags/">All tags</a>
   {% for tag in site.data.tags %}
-    <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+    {% assign tag_count = 0 %}
+    {% for item in site.lightshows %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+    {% for item in site.locksounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+    {% for item in site.boombox %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+    {% for item in site.wraps %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+    {% for item in site.hornsounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+    {% if tag_count > 0 %}
+      <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+    {% endif %}
   {% endfor %}
 </div>
