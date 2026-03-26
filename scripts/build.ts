@@ -127,13 +127,15 @@ function main(): void {
   const items = buildCatalog();
   ensureDir(OUTPUT_DIR);
 
-  // Full catalog
-  writeJSON(path.join(OUTPUT_DIR, "catalog.json"), {
+  // Full catalog — grouped by category
+  const catalog: Record<string, unknown> = {
     generatedAt: new Date().toISOString(),
     totalItems: items.length,
-    categories: CATEGORIES,
-    items,
-  });
+  };
+  for (const category of CATEGORIES) {
+    catalog[category] = items.filter((i) => i.category === category);
+  }
+  writeJSON(path.join(OUTPUT_DIR, "catalog.json"), catalog);
 
   // Per-category files
   for (const category of CATEGORIES) {
