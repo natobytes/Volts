@@ -1,6 +1,6 @@
 ---
 title: La Cucaracha
-author: TeslApp Team
+author: Volts Team
 description: The classic La Cucaracha horn melody.
 tags:
   - funny
