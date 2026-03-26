@@ -11,7 +11,13 @@ layout: default
 
 {% include tag-filter.html %}
 
-{% assign collection = site[page.collection_name] %}
+{% assign collection = "" | split: "" %}
+{% assign cat_prefix = "content/" | append: page.collection_name | append: "/" %}
+{% for pg in site.pages %}
+  {% if pg.path contains cat_prefix and pg.title %}
+    {% assign collection = collection | push: pg %}
+  {% endif %}
+{% endfor %}
 
 {% if collection.size > 0 %}
   <div class="card-grid">
