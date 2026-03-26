@@ -1,6 +1,6 @@
 ---
 title: Electric Dreams
-author: TeslApp Team
+author: Volts Team
 description: An ambient electronic track for the Boombox feature.
 tags:
   - electronic

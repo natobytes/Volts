@@ -1,6 +1,6 @@
 ---
 title: Holiday Special
-author: TeslApp Team
+author: Volts Team
 description: A festive light show sequence with synchronized holiday music.
 tags:
   - holiday

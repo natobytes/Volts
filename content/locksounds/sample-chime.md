@@ -1,6 +1,6 @@
 ---
 title: R2D2 Beep
-author: TeslApp Team
+author: Volts Team
 description: A fun sci-fi inspired lock chime sound.
 tags:
   - sci-fi

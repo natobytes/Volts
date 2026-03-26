@@ -1,6 +1,6 @@
 ---
 title: Cybertruck Matte Black
-author: TeslApp Team
+author: Volts Team
 description: A sleek matte black wrap design for the Cybertruck.
 tags:
   - cybertruck

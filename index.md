@@ -3,7 +3,7 @@ layout: default
 title: Home
 ---
 
-<h1>TeslApp Content Catalog</h1>
+<h1>Volts — Vehicle orchestration: Lights, Tunes & Skins</h1>
 <p style="margin-bottom: var(--space-xl);">Browse community-contributed content for your Tesla.</p>
 
 <div class="card-grid">
