@@ -30,6 +30,9 @@ const REQUIRED_META_FIELDS = ["title", "author", "description"];
 // Max file size: 50 MB
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
 
+// Allowed thumbnail extensions
+const THUMBNAIL_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
+
 // Slug pattern: lowercase alphanumeric + hyphens
 const SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -71,7 +74,8 @@ function validateMeta(
   meta: Record<string, unknown>,
   category: string,
   slug: string,
-  knownTags: Set<string>
+  knownTags: Set<string>,
+  itemDir: string
 ): void {
   for (const field of REQUIRED_META_FIELDS) {
     if (!meta[field] || String(meta[field]).trim() === "") {
@@ -90,6 +94,25 @@ function validateMeta(
             `${category}/${slug}/meta.yaml: unknown tag "${tag}". Add it to content/tags.yaml first.`
           );
         }
+      }
+    }
+  }
+
+  if (meta.thumbnail !== undefined) {
+    if (typeof meta.thumbnail !== "string" || meta.thumbnail.trim() === "") {
+      error(`${category}/${slug}/meta.yaml: "thumbnail" must be a non-empty string`);
+    } else {
+      const thumbExt = path.extname(String(meta.thumbnail)).toLowerCase();
+      if (!THUMBNAIL_EXTENSIONS.includes(thumbExt)) {
+        error(
+          `${category}/${slug}/meta.yaml: thumbnail "${meta.thumbnail}" has invalid extension "${thumbExt}" (allowed: ${THUMBNAIL_EXTENSIONS.join(", ")})`
+        );
+      }
+      const thumbPath = path.join(itemDir, String(meta.thumbnail));
+      if (!fs.existsSync(thumbPath)) {
+        error(
+          `${category}/${slug}/meta.yaml: thumbnail file "${meta.thumbnail}" not found`
+        );
       }
     }
   }
@@ -178,7 +201,7 @@ function main(): void {
         continue;
       }
 
-      validateMeta(meta, category, slug, knownTags);
+      validateMeta(meta, category, slug, knownTags, itemDir);
       validateFiles(itemDir, category, slug);
     }
   }

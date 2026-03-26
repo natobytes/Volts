@@ -28,20 +28,36 @@ layout: default
   <div class="card-grid">
     {% for item in all_items %}
       <div class="card">
-        <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
-        {% if item.description %}
-          <p>{{ item.description }}</p>
-        {% endif %}
-        {% if item.author %}
-          <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
-        {% endif %}
-        {% if item.tags %}
-          <div class="tag-list">
-            {% for tag in item.tags %}
-              <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
-            {% endfor %}
+        {% if item.thumbnail %}
+          <img class="card-thumb" src="{{ site.baseurl }}/{{ item.collection }}/{{ item.slug }}/{{ item.thumbnail }}" alt="{{ item.title }}" loading="lazy">
+        {% else %}
+          <div class="card-placeholder" aria-hidden="true">
+            {% case item.collection %}
+              {% when 'lightshows' %}&#x1F4A1;
+              {% when 'wraps' %}&#x1F3A8;
+              {% when 'locksounds' %}&#x1F50A;
+              {% when 'boombox' %}&#x1F3B5;
+              {% when 'hornsounds' %}&#x1F4E2;
+              {% else %}&#x26A1;
+            {% endcase %}
           </div>
         {% endif %}
+        <div class="card-body">
+          <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
+          {% if item.description %}
+            <p>{{ item.description }}</p>
+          {% endif %}
+          {% if item.author %}
+            <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
+          {% endif %}
+          {% if item.tags %}
+            <div class="tag-list">
+              {% for tag in item.tags %}
+                <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
       </div>
     {% endfor %}
   </div>

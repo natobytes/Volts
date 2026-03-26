@@ -18,6 +18,7 @@ interface ItemMeta {
   author?: string;
   description?: string;
   tags?: string[];
+  thumbnail?: string;
   [key: string]: unknown;
 }
 
@@ -28,6 +29,7 @@ interface CatalogItem {
   author: string;
   description: string;
   tags: string[];
+  thumbnail: string | null;
   files: string[];
   meta: ItemMeta;
 }
@@ -80,6 +82,7 @@ function buildCatalog(): CatalogItem[] {
         author: meta.author || "Unknown",
         description: meta.description || "",
         tags: Array.isArray(meta.tags) ? meta.tags : [],
+        thumbnail: typeof meta.thumbnail === "string" ? meta.thumbnail : null,
         files: listFiles(itemDir),
         meta,
       });
