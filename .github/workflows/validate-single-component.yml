@@ -1,0 +1,53 @@
+name: Validate Single Component
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/_*/**'
+
+jobs:
+  single-component-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check only one collection is modified
+        run: |
+          # Get changed files under content/ compared to the base branch
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD -- 'content/_*/' || true)
+
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No collection files changed."
+            exit 0
+          fi
+
+          echo "Changed files:"
+          echo "$CHANGED_FILES"
+          echo ""
+
+          # Extract unique collection directories, ignoring tags.yaml and README.md
+          COLLECTIONS=$(echo "$CHANGED_FILES" \
+            | grep -v '^content/tags\.yaml$' \
+            | grep -v '/README\.md$' \
+            | sed -n 's|^content/\(_[^/]*\)/.*|\1|p' \
+            | sort -u)
+
+          if [ -z "$COLLECTIONS" ]; then
+            echo "Only non-collection files changed (tags.yaml, README.md). OK."
+            exit 0
+          fi
+
+          COUNT=$(echo "$COLLECTIONS" | wc -l | tr -d ' ')
+          echo "Collections touched: $COLLECTIONS"
+
+          if [ "$COUNT" -gt 1 ]; then
+            COLLECTION_LIST=$(echo "$COLLECTIONS" | paste -sd', ' -)
+            echo ""
+            echo "::error::PRs should only add one component type at a time. Found changes in: $COLLECTION_LIST"
+            exit 1
+          fi
+
+          echo "Single collection modified: $COLLECTIONS. OK."
