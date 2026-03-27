@@ -51,7 +51,17 @@ layout: default
       <div class="audio-player">
         <p class="audio-player-label">Listen</p>
         <audio controls preload="metadata">
-          <source src="{{ site.baseurl }}/content/{{ col_name }}/{{ page.slug }}/{{ page.audio }}">
+          {% assign audio_ext = page.audio | split: "." | last | downcase %}
+          {% if audio_ext == "mp3" %}
+            {% assign audio_type = "audio/mpeg" %}
+          {% elsif audio_ext == "wav" %}
+            {% assign audio_type = "audio/wav" %}
+          {% elsif audio_ext == "ogg" %}
+            {% assign audio_type = "audio/ogg" %}
+          {% else %}
+            {% assign audio_type = "" %}
+          {% endif %}
+          <source src="{{ site.baseurl }}/content/{{ col_name }}/{{ page.slug }}/{{ page.audio }}"{% if audio_type != "" %} type="{{ audio_type }}"{% endif %}>
           Your browser does not support the audio element.
         </audio>
       </div>
