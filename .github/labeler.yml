@@ -1,0 +1,33 @@
+boombox:
+  - changed-files:
+      - any-glob-to-any-file: 'content/_boombox/**'
+
+horn-sounds:
+  - changed-files:
+      - any-glob-to-any-file: 'content/_hornsounds/**'
+
+light-shows:
+  - changed-files:
+      - any-glob-to-any-file: 'content/_lightshows/**'
+
+lock-sounds:
+  - changed-files:
+      - any-glob-to-any-file: 'content/_locksounds/**'
+
+wraps:
+  - changed-files:
+      - any-glob-to-any-file: 'content/_wraps/**'
+
+site:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '_layouts/**'
+          - '_includes/**'
+          - '_config.yml'
+          - '*.md'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.github/**'
+          - 'scripts/**'
