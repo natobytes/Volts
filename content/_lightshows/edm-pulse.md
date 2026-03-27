@@ -2,6 +2,12 @@
 title: EDM Pulse
 author: Community (XLightShows)
 description: An electronic dance music light sequence with vibrant color pulses and fast-paced synchronized transitions.
+audio: edm-pulse.mp3
+files:
+  - name: edm-pulse.fseq
+    label: Light Sequence
+  - name: edm-pulse.mp3
+    label: Audio Track
 tags:
   - electronic
   - synchronized
