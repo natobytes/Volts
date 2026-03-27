@@ -2,6 +2,12 @@
 title: Chill Ambient Glow
 author: Community (XLightShows)
 description: A slow ambient fade sequence with gentle color transitions for a relaxed light show experience.
+audio: chill-ambient-glow.mp3
+files:
+  - name: chill-ambient-glow.fseq
+    label: Light Sequence
+  - name: chill-ambient-glow.mp3
+    label: Audio Track
 tags:
   - ambient
   - minimal
