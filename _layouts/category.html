@@ -16,7 +16,7 @@ layout: default
     {% for item in collection %}
       <div class="card">
         {% if item.thumbnail %}
-          {% assign thumb_src = site.baseurl | append: "/" | append: page.collection_name | append: "/" | append: item.slug | append: "/" | append: item.thumbnail %}
+          {% assign thumb_src = site.baseurl | append: "/content/" | append: page.collection_name | append: "/" | append: item.slug | append: "/" | append: item.thumbnail %}
           <a class="card-thumb-link glightbox" href="{{ thumb_src }}" data-gallery="gallery" data-title="{{ item.title }}" data-description="{{ item.description }}">
             <img class="card-thumb" src="{{ thumb_src }}" alt="{{ item.title }}" loading="lazy">
           </a>
