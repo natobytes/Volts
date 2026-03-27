@@ -1,0 +1,22 @@
+name: Validate Wraps Content
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'content/_wraps/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run validate -- --collection wraps
