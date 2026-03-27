@@ -2,6 +2,10 @@
 title: Matte White Pearl
 author: Tesla Wrap Community
 description: A clean matte white finish with subtle pearl iridescence. Elegant and understated for Model 3 and Model Y.
+thumbnail: matte-white-pearl.png
+files:
+  - name: matte-white-pearl.png
+    label: Wrap Image
 tags:
   - minimal
   - model-3
