@@ -2,6 +2,10 @@
 title: Carbon Fiber Black
 author: Tesla Wrap Community
 description: A textured carbon fiber wrap in deep black, designed for Model 3 and Model Y. Subtle weave pattern adds depth and a sporty aesthetic.
+thumbnail: carbon-fiber-black.png
+files:
+  - name: carbon-fiber-black.png
+    label: Wrap Image
 tags:
   - model-3
   - model-y
