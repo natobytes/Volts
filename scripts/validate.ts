@@ -16,20 +16,26 @@ const CATEGORIES = [
 
 type Category = (typeof CATEGORIES)[number];
 
-// Allowed file extensions per category (excluding meta.yaml)
+// Allowed file extensions per category (per Tesla USB spec)
 const ALLOWED_EXTENSIONS: Record<Category, string[]> = {
   lightshows: [".fseq", ".mp3"],
   locksounds: [".wav"],
-  boombox: [".mp3", ".wav", ".ogg"],
-  wraps: [".png", ".jpg", ".jpeg", ".webp", ".svg"],
+  boombox: [".mp3", ".wav", ".flac"],
+  wraps: [".png"],
   hornsounds: [".mp3", ".wav", ".ogg"],
 };
 
 // Required frontmatter fields
 const REQUIRED_META_FIELDS = ["title", "author", "description"];
 
-// Max file size: 50 MB
+// Default max file size: 50 MB
 const MAX_FILE_SIZE_BYTES = 50 * 1024 * 1024;
+
+// Per-category max file size overrides (per Tesla USB spec)
+const MAX_FILE_SIZE_PER_CATEGORY: Partial<Record<Category, number>> = {
+  locksounds: 1 * 1024 * 1024, // 1 MB per Tesla spec
+  wraps: 1 * 1024 * 1024,      // 1 MB per image per Tesla spec
+};
 
 // Allowed thumbnail extensions
 const THUMBNAIL_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".svg"];
@@ -146,13 +152,15 @@ function validateFiles(
       );
     }
 
-    // Check file size
+    // Check file size (use per-category limit if defined, else global default)
     const filePath = path.join(itemDir, file.name);
     const stat = fs.statSync(filePath);
-    if (stat.size > MAX_FILE_SIZE_BYTES) {
+    const maxSize = MAX_FILE_SIZE_PER_CATEGORY[category] ?? MAX_FILE_SIZE_BYTES;
+    if (stat.size > maxSize) {
       const sizeMB = (stat.size / (1024 * 1024)).toFixed(1);
+      const maxMB = (maxSize / (1024 * 1024)).toFixed(0);
       error(
-        `${category}/${slug}/${file.name}: file too large (${sizeMB} MB, max 50 MB)`
+        `${category}/${slug}/${file.name}: file too large (${sizeMB} MB, max ${maxMB} MB)`
       );
     }
   }
@@ -190,13 +198,37 @@ function validateFilesField(
   }
 }
 
+function parseArgs(): { collection?: Category } {
+  const args = process.argv.slice(2);
+  const collectionIdx = args.indexOf("--collection");
+  if (collectionIdx === -1) return {};
+
+  const name = args[collectionIdx + 1];
+  if (!name) {
+    console.error("Error: --collection requires a value. Valid collections: " + CATEGORIES.join(", "));
+    process.exit(1);
+  }
+  if (!CATEGORIES.includes(name as Category)) {
+    console.error(`Error: unknown collection "${name}". Valid collections: ${CATEGORIES.join(", ")}`);
+    process.exit(1);
+  }
+  return { collection: name as Category };
+}
+
 function main(): void {
-  console.log("Validating content/...\n");
+  const { collection } = parseArgs();
+  const categoriesToValidate = collection ? [collection] : CATEGORIES;
+
+  console.log(
+    collection
+      ? `Validating content/_${collection}/...\n`
+      : "Validating content/...\n"
+  );
 
   const knownTags = loadKnownTags();
   let itemCount = 0;
 
-  for (const category of CATEGORIES) {
+  for (const category of categoriesToValidate) {
     const categoryDir = path.join(CONTENT_DIR, `_${category}`);
     if (!fs.existsSync(categoryDir)) continue;
 
@@ -241,7 +273,7 @@ function main(): void {
     }
   }
 
-  console.log(`\nChecked ${itemCount} items across ${CATEGORIES.length} categories.`);
+  console.log(`\nChecked ${itemCount} items across ${categoriesToValidate.length} categor${categoriesToValidate.length === 1 ? "y" : "ies"}.`);
 
   if (errors.length > 0) {
     console.error(`\n${errors.length} validation error(s) found.`);
