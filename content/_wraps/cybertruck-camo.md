@@ -2,6 +2,10 @@
 title: Cybertruck Camo
 author: Tesla Wrap Community
 description: A military-style camouflage wrap designed for the Cybertruck. Features dark greens, olive, and brown tones in a rugged block pattern.
+thumbnail: cybertruck-camo.png
+files:
+  - name: cybertruck-camo.png
+    label: Wrap Image
 tags:
   - cybertruck
   - custom
