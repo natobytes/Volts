@@ -2,6 +2,10 @@
 title: Arcade Coin
 author: Volts Team
 description: A retro arcade coin insert sound with a classic two-note rising arpeggio in square wave.
+audio: arcade-coin.wav
+files:
+  - name: arcade-coin.wav
+    label: Lock Sound
 tags:
   - retro
   - gaming
