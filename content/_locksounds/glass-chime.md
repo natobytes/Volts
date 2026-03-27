@@ -2,6 +2,10 @@
 title: Glass Chime
 author: Volts Team
 description: A gentle, high-pitched glass chime with layered harmonics and a smooth decay.
+audio: glass-chime.wav
+files:
+  - name: glass-chime.wav
+    label: Lock Sound
 tags:
   - minimal
   - ambient
