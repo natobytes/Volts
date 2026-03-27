@@ -166,27 +166,50 @@ function validateFiles(
   }
 }
 
+// Categories that require an "audio" frontmatter field
+const AUDIO_REQUIRED_CATEGORIES: readonly Category[] = [
+  "locksounds",
+  "hornsounds",
+  "boombox",
+  "lightshows",
+];
+
+// Categories that require a "thumbnail" frontmatter field
+const THUMBNAIL_REQUIRED_CATEGORIES: readonly Category[] = ["wraps"];
+
 function validateFilesField(
   meta: Record<string, unknown>,
   category: string,
   slug: string,
   itemDir: string
 ): void {
-  if (meta.files === undefined) return;
+  if (meta.files === undefined) {
+    error(`${category}/${slug}.md: missing required field "files"`);
+    return;
+  }
 
   if (!Array.isArray(meta.files)) {
     error(`${category}/${slug}.md: "files" must be an array`);
     return;
   }
 
+  if (meta.files.length === 0) {
+    error(`${category}/${slug}.md: "files" must contain at least one entry`);
+    return;
+  }
+
   for (const entry of meta.files) {
     if (!entry || typeof entry !== "object") {
-      error(`${category}/${slug}.md: each entry in "files" must be an object with a "name" field`);
+      error(`${category}/${slug}.md: each entry in "files" must be an object with "name" and "label" fields`);
       continue;
     }
     const fileEntry = entry as Record<string, unknown>;
     if (!fileEntry.name || typeof fileEntry.name !== "string" || fileEntry.name.trim() === "") {
       error(`${category}/${slug}.md: each entry in "files" must have a non-empty "name" string`);
+      continue;
+    }
+    if (!fileEntry.label || typeof fileEntry.label !== "string" || fileEntry.label.trim() === "") {
+      error(`${category}/${slug}.md: each entry in "files" must have a non-empty "label" string`);
       continue;
     }
     const filePath = path.join(itemDir, String(fileEntry.name));
@@ -196,6 +219,45 @@ function validateFilesField(
       );
     }
   }
+}
+
+function validateAudioField(
+  meta: Record<string, unknown>,
+  category: string,
+  slug: string,
+  itemDir: string
+): void {
+  if (!AUDIO_REQUIRED_CATEGORIES.includes(category as Category)) return;
+
+  if (meta.audio === undefined) {
+    error(`${category}/${slug}.md: missing required field "audio"`);
+    return;
+  }
+
+  if (typeof meta.audio !== "string" || meta.audio.trim() === "") {
+    error(`${category}/${slug}.md: "audio" must be a non-empty string`);
+    return;
+  }
+
+  const audioPath = path.join(itemDir, String(meta.audio));
+  if (!fs.existsSync(audioPath)) {
+    error(`${category}/${slug}.md: audio file "${meta.audio}" not found`);
+  }
+}
+
+function validateThumbnailRequired(
+  meta: Record<string, unknown>,
+  category: string,
+  slug: string,
+  itemDir: string
+): void {
+  if (!THUMBNAIL_REQUIRED_CATEGORIES.includes(category as Category)) return;
+
+  if (meta.thumbnail === undefined) {
+    error(`${category}/${slug}.md: missing required field "thumbnail"`);
+    return;
+  }
+  // Actual thumbnail format/existence validation is handled in validateMeta
 }
 
 function parseArgs(): { collection?: Category } {
@@ -270,6 +332,8 @@ function main(): void {
       validateMeta(meta, category, slug, knownTags, itemDir);
       validateFiles(itemDir, category, slug);
       validateFilesField(meta, category, slug, itemDir);
+      validateAudioField(meta, category, slug, itemDir);
+      validateThumbnailRequired(meta, category, slug, itemDir);
     }
   }
 
