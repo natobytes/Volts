@@ -2,6 +2,10 @@
 title: Cartoon Honk
 author: Volts Community
 description: A silly cartoon-style honk sound, guaranteed to get a laugh.
+audio: cartoon-honk.mp3
+files:
+  - name: cartoon-honk.mp3
+    label: Horn Sound
 tags:
   - funny
   - meme
