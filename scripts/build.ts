@@ -71,14 +71,57 @@ function listItemDirs(categoryDir: string): string[] {
     .map((d) => d.name);
 }
 
-function listFiles(dir: string, baseUrl: string, category: string, slug: string): FileEntry[] {
-  return fs
-    .readdirSync(dir, { withFileTypes: true })
-    .filter((f) => f.isFile())
-    .map((f) => ({
-      name: f.name,
-      downloadUrl: `${baseUrl}/content/${category}/${slug}/${f.name}`,
-    }));
+function urlFor(baseUrl: string, category: string, slug: string, name: string): string {
+  return `${baseUrl}/content/${category}/${slug}/${name}`;
+}
+
+// Build the catalog's top-level files[] from the DECLARED meta.files (the
+// contract the app consumes), intersected with what's actually on disk. Falls
+// back to a disk glob only when an item declares no files, and warns loudly on
+// any drift so stray/renamed/missing files can't silently ship to the app.
+function buildFiles(
+  meta: ItemMeta,
+  itemDir: string,
+  baseUrl: string,
+  category: string,
+  slug: string
+): FileEntry[] {
+  const onDisk = new Set(
+    fs
+      .readdirSync(itemDir, { withFileTypes: true })
+      .filter((f) => f.isFile())
+      .map((f) => f.name)
+  );
+
+  const declared = Array.isArray(meta.files)
+    ? (meta.files as unknown[])
+        .map((f) =>
+          f && typeof f === "object" && typeof (f as Record<string, unknown>).name === "string"
+            ? ((f as Record<string, unknown>).name as string)
+            : null
+        )
+        .filter((n): n is string => n !== null)
+    : [];
+
+  if (declared.length === 0) {
+    console.warn(`  ! ${category}/${slug}: no meta.files declared — falling back to disk glob`);
+    return [...onDisk].map((name) => ({ name, downloadUrl: urlFor(baseUrl, category, slug, name) }));
+  }
+
+  for (const name of declared) {
+    if (!onDisk.has(name)) {
+      console.warn(`  ! ${category}/${slug}: declared file "${name}" missing on disk — omitted from catalog`);
+    }
+  }
+  for (const name of onDisk) {
+    if (!declared.includes(name)) {
+      console.warn(`  ! ${category}/${slug}: file "${name}" on disk but not declared in meta.files — omitted from catalog`);
+    }
+  }
+
+  return declared
+    .filter((name) => onDisk.has(name))
+    .map((name) => ({ name, downloadUrl: urlFor(baseUrl, category, slug, name) }));
 }
 
 function buildCatalog(): CatalogItem[] {
@@ -108,6 +151,13 @@ function buildCatalog(): CatalogItem[] {
         }
       }
 
+      if (!meta.title) {
+        console.warn(`  ! ${category}/${slug}: missing "title" — defaulting to slug`);
+      }
+      if (!meta.author) {
+        console.warn(`  ! ${category}/${slug}: missing "author" — defaulting to "Unknown"`);
+      }
+
       items.push({
         slug,
         category,
@@ -116,7 +166,7 @@ function buildCatalog(): CatalogItem[] {
         description: meta.description || "",
         tags: Array.isArray(meta.tags) ? meta.tags : [],
         thumbnail: typeof meta.thumbnail === "string" ? meta.thumbnail : null,
-        files: listFiles(itemDir, baseUrl, category, slug),
+        files: buildFiles(meta, itemDir, baseUrl, category, slug),
         meta,
       });
     }

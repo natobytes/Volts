@@ -23,7 +23,11 @@ jobs:
         with:
           node-version: 20
 
-      - run: npm install
+      - run: npm ci
+
+      # Fail the deploy if any content is invalid — never ship a broken catalog.
+      - run: npm run validate
+
       - run: npm run build
 
       - uses: ruby/setup-ruby@v1

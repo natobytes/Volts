@@ -1,0 +1,33 @@
+name: Build Check
+
+# Catches breakage in the JSON build or the Jekyll site on PRs, before it can
+# only surface on the production deploy (which would otherwise keep serving the
+# last good Pages artifact while main is broken).
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+
+      - name: Build Jekyll site (no deploy)
+        run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
