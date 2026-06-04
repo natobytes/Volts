@@ -20,6 +20,13 @@ jobs:
           cache: npm
 
       - run: npm ci
+
+      # Surface high/critical dependency vulnerabilities on every PR.
+      # Non-blocking (|| true) so a fresh advisory can't wall off content PRs,
+      # but the report stays visible in the job log for maintainers to triage.
+      - name: Audit npm dependencies (high+)
+        run: npm audit --audit-level=high || true
+
       - run: npm run build
 
       - uses: ruby/setup-ruby@v1

@@ -1,12 +1,25 @@
 title: Volts
 description: "Vehicle orchestration: Lights, Tunes & Skins — Community-curated light shows, lock sounds, boombox tracks, wraps, and horn sounds for Tesla vehicles."
 baseurl: "/Volts"
-url: ""
+url: "https://natobytes.com"
+
+# Social / SEO metadata. `url` (host) + `baseurl` (/Volts) give absolute URLs
+# for jekyll-seo-tag, jekyll-sitemap, and the OpenGraph/Twitter-card meta in
+# _layouts/default.html. Note: the app still resolves catalog downloadUrls
+# against the host only — baseurl is unchanged.
+author: NatoBytes
+twitter:
+  card: summary_large_image
+social:
+  name: Volts
+  links:
+    - https://github.com/natobytes/Volts
 
 markdown: kramdown
 
 plugins:
   - jekyll-seo-tag
+  - jekyll-sitemap
 
 exclude:
   - node_modules

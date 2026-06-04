@@ -1,0 +1,13 @@
+# GitHub Issue Forms chooser config.
+# Issue Forms (the *.yml files in this folder) let non-technical users propose
+# content without opening a pull request. The PR templates under
+# .github/PULL_REQUEST_TEMPLATE/ remain the path for contributors who can edit
+# files directly.
+blank_issues_enabled: true
+contact_links:
+  - name: Contribute via Pull Request (for coders)
+    url: https://github.com/natobytes/Volts/tree/main/.github/PULL_REQUEST_TEMPLATE
+    about: Comfortable with Git? Open a PR using the per-category templates and run `npm run validate` first.
+  - name: Authoring & schema docs
+    url: https://github.com/natobytes/Volts/blob/main/SCHEMA.md
+    about: Read the content spec (required fields, file types, size limits) before submitting.
