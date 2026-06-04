@@ -2,16 +2,20 @@
 
 **Content type:** Boombox
 
+See [SCHEMA.md](../../SCHEMA.md) for the full spec. Run `npm run validate` before submitting.
+
 ### Checklist
 
 #### Required files
 - [ ] `<slug>.md` with frontmatter containing all required fields
-- [ ] Audio file: `.mp3`, `.wav`, or `.ogg`
+- [ ] Audio file: `.mp3`, `.wav`, or `.flac`
 
 #### Frontmatter fields (in `<slug>.md`)
 - [ ] `title` — display name for this boombox track
 - [ ] `author` — creator name or handle
 - [ ] `description` — brief description of the track
+- [ ] `files` — list of `{ name, label }` for each asset (must exist in the folder)
+- [ ] `audio` — the audio filename (must exist)
 - [ ] `tags` — array of tags from `content/tags.yaml` (optional)
 
 #### Naming & structure

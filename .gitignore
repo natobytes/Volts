@@ -17,3 +17,6 @@ Gemfile.lock
 # IDE
 .idea/
 .vscode/
+
+# CodeGraph (local code-intelligence index)
+.codegraph/
