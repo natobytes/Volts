@@ -47,9 +47,11 @@ content/_<category>/<slug>.md      # front matter — sits BESIDE the folder, no
 
 `npm run build` emits (into the gitignored `public/api/`, copied to `/api/` at deploy):
 
-- **`catalog.json`** — `{ generatedAt, totalItems, lightshows[], locksounds[], boombox[], wraps[], hornsounds[] }`
-- **`<category>.json`** — `{ category, totalItems, items[] }`
+- **`catalog.json`** — `{ schemaVersion, generatedAt, totalItems, lightshows[], locksounds[], boombox[], wraps[], hornsounds[] }`
+- **`<category>.json`** — `{ schemaVersion, category, totalItems, items[] }`
 - **`tags.json`** — `{ totalTags, tags: { <tag>: ["<category>/<slug>", …] } }`
+
+`schemaVersion` (currently **`1`**) is a top-level integer on `catalog.json` and each `<category>.json`. It is bumped whenever the emitted JSON shape changes so the app can gate parsing of newer optional fields. The current contract is version 1 (adds `thumbnailUrl` + `specs` to each item).
 
 Each **item**:
 ```jsonc
@@ -61,14 +63,35 @@ Each **item**:
   "description": "…",
   "tags": ["rock", "synchronized"],
   "thumbnail": null,                 // string filename for wraps, else null
+  "thumbnailUrl": null,              // root-relative URL when thumbnail set, else null
   "files": [                         // derived from declared meta.files ∩ disk
     { "name": "…​.fseq", "downloadUrl": "/Volts/content/lightshows/<slug>/<slug>.fseq" }
   ],
+  "specs": {                         // best-effort media specs, all fields nullable
+    "channels": 0,
+    "sampleRate": null,
+    "durationSeconds": 0.025
+  },
   "meta": { /* full front matter; meta.files[] also gets downloadUrl + keeps label */ }
 }
 ```
 
+### `thumbnailUrl`
+When front matter declares `thumbnail`, `build.ts` emits a root-relative `thumbnailUrl` of `<baseurl>/content/<category>/<slug>/<thumbnail>` — the **same convention and `/Volts` prefix as `files[].downloadUrl`**. When no `thumbnail` is declared it is `null`. The raw `thumbnail` field (bare filename or `null`) is kept as-is alongside it.
+
+### `specs` (best-effort, nullable)
+`specs` is parsed best-effort from an item's binaries. **Every field is nullable and the build never throws on a malformed/stub asset** — today's committed fixtures are tiny placeholder stubs, so expect `null` (or degenerate) values until real assets land. Shape: `{ channels, sampleRate, durationSeconds }`.
+
+| Category | Source binary | `channels` | `sampleRate` | `durationSeconds` |
+|---|---|---|---|---|
+| `lightshows` | `.fseq` (FSEQ v2.x, `PSEQ` magic) | `channelCount` (uint32 @10) | `null` | `frameCount`(@14) × `stepTime`(@18) / 1000 |
+| `locksounds`, `hornsounds`, `boombox`, any `.wav` | first `.wav` (RIFF chunk-walk) | `fmt ` channels | `fmt ` sampleRate | `data` size / (`sampleRate` × `channels` × `bitsPerSample`/8) |
+| mp3-only items (and items with no parseable binary) | — | `null` | `null` | `null` |
+
+MP3 is intentionally **not** parsed (variable bitrate makes header-derived duration/sampleRate unreliable), so an mp3-only item yields all-`null` specs. Any parse failure (bad magic, truncated stub, missing chunk) also yields `null` for the affected field(s).
+
 **Cross-repo invariants (do not break without updating the app):**
 1. The five **category key names** are fixed. A new category is silently ignored by the app until it ships an update (`CatalogApi.kt` has a hardcoded `CATEGORY_KEYS`).
-2. `downloadUrl` is **root-relative and includes the `/Volts` prefix** (driven by `_config.yml`'s `baseurl`). The app resolves it against the host only (`https://natobytes.com`). Changing `baseurl` breaks the app's URL resolution.
+2. `downloadUrl` (and `thumbnailUrl`) is **root-relative and includes the `/Volts` prefix** (driven by `_config.yml`'s `baseurl`). The app resolves it against the host only (`https://natobytes.com`). Changing `baseurl` breaks the app's URL resolution.
 3. `meta.files[].label` is relied on by the app for display.
+4. `schemaVersion`, `thumbnailUrl`, and `specs` are **additive** (version 1). They don't displace any existing field, and `specs` values are best-effort/nullable — the app must tolerate `null` for any spec.
