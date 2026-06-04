@@ -43,7 +43,7 @@ jobs:
       - name: Copy JSON catalog into site output
         run: cp -r public/api _site/api
 
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
 
