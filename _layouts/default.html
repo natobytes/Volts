@@ -5,6 +5,41 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{ page.title }} | {{ site.title }}</title>
   {% seo %}
+
+  {%- comment -%}
+    Explicit OpenGraph / Twitter-card metadata. jekyll-seo-tag above already
+    emits a baseline set; these reinforce title/description/url/site_name and
+    add an image when one is available, guarding for missing front matter.
+  {%- endcomment -%}
+  {%- if page.title -%}
+    {%- assign og_title = page.title | append: " | " | append: site.title -%}
+  {%- else -%}
+    {%- assign og_title = site.title -%}
+  {%- endif -%}
+  {%- assign og_desc = page.description | default: site.description -%}
+  {%- assign og_url = page.url | absolute_url -%}
+  {%- comment -%} Per-item images: wraps carry a thumbnail; otherwise fall back to a site default if present. {%- endcomment -%}
+  {%- comment -%} absolute_url already prepends baseurl, so paths start at /content/. {%- endcomment -%}
+  {%- assign og_image = "" -%}
+  {%- if page.thumbnail and page.collection -%}
+    {%- capture og_image -%}/content/{{ page.collection }}/{{ page.slug }}/{{ page.thumbnail }}{%- endcapture -%}
+    {%- assign og_image = og_image | absolute_url -%}
+  {%- elsif site.og_image -%}
+    {%- assign og_image = site.og_image | absolute_url -%}
+  {%- endif -%}
+
+  <meta property="og:type" content="{% if page.collection %}article{% else %}website{% endif %}">
+  <meta property="og:site_name" content="{{ site.title }}">
+  <meta property="og:title" content="{{ og_title | escape }}">
+  {% if og_desc %}<meta property="og:description" content="{{ og_desc | escape }}">{% endif %}
+  <meta property="og:url" content="{{ og_url }}">
+  {% if og_image != "" %}<meta property="og:image" content="{{ og_image }}">{% endif %}
+
+  <meta name="twitter:card" content="{% if og_image != '' %}summary_large_image{% else %}summary{% endif %}">
+  <meta name="twitter:title" content="{{ og_title | escape }}">
+  {% if og_desc %}<meta name="twitter:description" content="{{ og_desc | escape }}">{% endif %}
+  {% if og_image != "" %}<meta name="twitter:image" content="{{ og_image }}">{% endif %}
+
   <script>
     (function() {
       var stored = localStorage.getItem('theme');

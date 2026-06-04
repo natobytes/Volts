@@ -1,0 +1,96 @@
+name: Submit content (no coding required)
+description: Propose a light show, lock sound, boombox track, wrap, or horn sound — no Git or pull request needed.
+title: "[content] "
+labels:
+  - content-submission
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for contributing to **Volts**! This form lets you propose content
+        without editing files or opening a pull request. A maintainer will review
+        your submission and add it to the catalog.
+
+        Please make sure you have the right to share the content (it must be
+        free-to-use / properly licensed). See the
+        [content schema](https://github.com/natobytes/Volts/blob/main/SCHEMA.md)
+        for the size limits and file types per category.
+  - type: dropdown
+    id: category
+    attributes:
+      label: Category
+      description: Which kind of content is this?
+      options:
+        - Light Show (.fseq + matching audio)
+        - Lock Sound (.wav, max 1 MB)
+        - Boombox Track (.mp3 / .wav / .flac)
+        - Wrap (.png, 512–1024 px, max 1 MB)
+        - Horn Sound (.mp3 / .wav)
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      description: The display name for this item.
+      placeholder: e.g. Thunderstruck Rock Show
+    validations:
+      required: true
+  - type: input
+    id: author
+    attributes:
+      label: Author / credit
+      description: Who created this? A name, handle, or community to credit.
+      placeholder: e.g. Community (XLightShows)
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A short description of the content (theme, song, vehicle fit, effects…).
+      placeholder: A high-energy rock-themed synchronized light show with dramatic flashes.
+    validations:
+      required: true
+  - type: input
+    id: tags
+    attributes:
+      label: Tags
+      description: >
+        Comma-separated tags. Must come from the
+        [allowed tag list](https://github.com/natobytes/Volts/blob/main/content/tags.yaml) —
+        a maintainer can add a new tag if needed.
+      placeholder: rock, synchronized
+    validations:
+      required: false
+  - type: textarea
+    id: files
+    attributes:
+      label: Files (link or upload)
+      description: >
+        Share the actual content files. You can **drag-and-drop or paste files
+        directly into this box** to upload them to the issue, or paste a link to
+        where they're hosted (Google Drive, Dropbox, GitHub gist, etc.). Include
+        all assets (e.g. both the `.fseq` and the matching `.mp3` for a light show).
+      placeholder: |
+        Link: https://drive.google.com/...
+        or drag files here to attach them.
+    validations:
+      required: true
+  - type: input
+    id: license
+    attributes:
+      label: License / source
+      description: Where did this come from, and is it free to redistribute?
+      placeholder: e.g. Original work — free to use, or "Sourced from XLightShows (free-to-use license)"
+    validations:
+      required: false
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Confirmations
+      options:
+        - label: I have the right to share this content and it is free to redistribute.
+          required: true
+        - label: I have read the per-category file type and size limits in SCHEMA.md.
+          required: false

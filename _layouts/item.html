@@ -12,6 +12,48 @@ layout: default
   {% endif %}
 {% endfor %}
 
+{%- comment -%}
+  schema.org structured data for this item. Audio-bearing categories are
+  modelled as MediaObject; everything else (e.g. wraps) as CreativeWork.
+  All optional fields are guarded and run through `jsonify` so quotes and
+  newlines are safely escaped. `url`/`absolute_url` produce absolute links.
+{%- endcomment -%}
+{%- assign audio_categories = "locksounds,hornsounds,boombox,lightshows" | split: "," -%}
+{%- if audio_categories contains col_name -%}
+  {%- assign schema_type = "MediaObject" -%}
+{%- else -%}
+  {%- assign schema_type = "CreativeWork" -%}
+{%- endif -%}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": {{ schema_type | jsonify }},
+  "name": {{ page.title | default: page.slug | jsonify }},
+  "url": {{ page.url | absolute_url | jsonify }},
+  "genre": {{ category_label | jsonify }}
+  {%- if page.author %},
+  "author": { "@type": "Person", "name": {{ page.author | jsonify }} }
+  {%- endif -%}
+  {%- if page.description %},
+  "description": {{ page.description | jsonify }}
+  {%- endif -%}
+  {%- if page.tags and page.tags.size > 0 %},
+  "keywords": {{ page.tags | join: ", " | jsonify }}
+  {%- endif -%}
+  {%- if page.thumbnail %},
+  {%- comment -%} absolute_url already prepends baseurl, so the path starts at /content/. {%- endcomment -%}
+  {%- capture jsonld_thumb -%}/content/{{ col_name }}/{{ page.slug }}/{{ page.thumbnail }}{%- endcapture %}
+  "image": {{ jsonld_thumb | absolute_url | jsonify }}
+  {%- endif -%}
+  {%- if page.audio %},
+  {%- capture jsonld_audio -%}/content/{{ col_name }}/{{ page.slug }}/{{ page.audio }}{%- endcapture %}
+  "contentUrl": {{ jsonld_audio | absolute_url | jsonify }}
+  {%- endif -%}
+  ,
+  "isPartOf": { "@type": "WebSite", "name": {{ site.title | jsonify }}, "url": {{ site.url | append: site.baseurl | jsonify }} }
+}
+</script>
+
 <div class="breadcrumb">
   <a href="{{ site.baseurl }}/">Home</a> &rsaquo;
   <a href="{{ site.baseurl }}/{{ col_name }}/">{{ category_label }}</a> &rsaquo;
