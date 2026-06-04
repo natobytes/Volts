@@ -3,6 +3,12 @@ description: "Vehicle orchestration: Lights, Tunes & Skins — Community-curated
 baseurl: "/Volts"
 url: "https://natobytes.com"
 
+# Cookieless analytics (OFF by default — set one to opt in; see _includes/analytics.html).
+# Plausible also reports per-item file-download popularity in its dashboard.
+analytics:
+  plausible_domain: ""   # e.g. "natobytes.com"
+  goatcounter_code: ""   # e.g. "yourcode"  (alternative; subdomain of goatcounter.com)
+
 # Social / SEO metadata. `url` (host) + `baseurl` (/Volts) give absolute URLs
 # for jekyll-seo-tag, jekyll-sitemap, and the OpenGraph/Twitter-card meta in
 # _layouts/default.html. Note: the app still resolves catalog downloadUrls
