@@ -1,0 +1,20 @@
+{%- comment -%}
+  Cookieless, privacy-friendly analytics. Renders NOTHING unless configured in
+  _config.yml, so it is a safe no-op until the site owner opts in:
+
+    analytics:
+      plausible_domain: "natobytes.com"   # your Plausible site domain
+      goatcounter_code: ""                # your GoatCounter code (subdomain)
+
+  Set at most one. Both are cookieless and need no consent banner. The Plausible
+  script also tracks file downloads + outbound links, so per-item download
+  popularity is visible in the Plausible dashboard (no server-side counter is
+  possible on static GitHub Pages).
+{%- endcomment -%}
+{%- assign plausible = site.analytics.plausible_domain -%}
+{%- assign goatcounter = site.analytics.goatcounter_code -%}
+{%- if plausible and plausible != "" -%}
+  <script defer data-domain="{{ plausible }}" src="https://plausible.io/js/script.file-downloads.outbound-links.js"></script>
+{%- elsif goatcounter and goatcounter != "" -%}
+  <script data-goatcounter="https://{{ goatcounter }}.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+{%- endif -%}
