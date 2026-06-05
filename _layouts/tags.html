@@ -2,23 +2,28 @@
 layout: default
 ---
 
-<div class="breadcrumb">
-  <a href="{{ site.baseurl }}/">Home</a> &rsaquo; Tags
-</div>
+<div class="page">
+  <div class="breadcrumb">
+    <a href="{{ site.baseurl }}/">Home</a> <span class="sep">/</span> <span>Tags</span>
+  </div>
 
-<h1>All Tags</h1>
-<p>Browse content by tag. Each tag page lists all items across every category.</p>
+  <div class="section-head">
+    <span class="eyebrow">Browse By Theme</span>
+    <h1>All Tags</h1>
+    <p class="lead">Every tag lists matching items across all five categories.</p>
+  </div>
 
-<div class="tag-list" style="margin-top: var(--space-lg); gap: var(--space-sm);">
-  {% for tag in site.data.tags %}
-    {% assign tag_count = 0 %}
-    {% for item in site.lightshows %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.locksounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.boombox %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.wraps %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.hornsounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% if tag_count > 0 %}
-      <a class="tag" style="font-size: 0.9rem; padding: 0.3rem 0.75rem;" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
-    {% endif %}
-  {% endfor %}
+  <div class="tag-list" style="gap: var(--s-3);">
+    {% for tag in site.data.tags %}
+      {% assign tag_count = 0 %}
+      {% for item in site.lightshows %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+      {% for item in site.locksounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+      {% for item in site.boombox %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+      {% for item in site.wraps %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+      {% for item in site.hornsounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
+      {% if tag_count > 0 %}
+        <a class="tag tag--lg" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }} <span style="opacity:.55">{{ tag_count }}</span></a>
+      {% endif %}
+    {% endfor %}
+  </div>
 </div>

@@ -1,13 +1,16 @@
-<div class="tag-list" style="margin-bottom: var(--space-lg);">
-  <a class="tag" href="{{ site.baseurl }}/tags/">All tags</a>
+{%- comment -%}
+  Tag filter chips. On a category page (page.collection_name set) only tags that
+  actually appear in THAT collection are shown; elsewhere (e.g. a tag page) it
+  falls back to every tag used anywhere. Counts gate out unused tags.
+{%- endcomment -%}
+{% assign filter_cols = "lightshows,locksounds,boombox,wraps,hornsounds" | split: "," %}
+{% if page.collection_name %}{% assign filter_cols = page.collection_name | split: "," %}{% endif %}
+<div class="tag-list" style="margin: var(--s-2) 0 var(--s-6); gap: var(--s-2);">
+  <a class="tag" href="{{ site.baseurl }}/tags/" style="border-color: var(--accent); color: var(--accent);">all</a>
   {% for tag in site.data.tags %}
-    {% assign tag_count = 0 %}
-    {% for item in site.lightshows %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.locksounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.boombox %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.wraps %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% for item in site.hornsounds %}{% if item.tags contains tag %}{% assign tag_count = tag_count | plus: 1 %}{% endif %}{% endfor %}
-    {% if tag_count > 0 %}
+    {% assign tc = 0 %}
+    {% for c in filter_cols %}{% for item in site[c] %}{% if item.tags contains tag %}{% assign tc = tc | plus: 1 %}{% endif %}{% endfor %}{% endfor %}
+    {% if tc > 0 %}
       <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
     {% endif %}
   {% endfor %}
