@@ -1,10 +1,14 @@
-<nav>
+{%- comment -%}
+  Primary nav. A link is "active" on its category index (page.collection_name)
+  AND on any item detail page in that collection (page.collection).
+{%- endcomment -%}
+<nav aria-label="Primary">
   <ul class="site-nav">
-    <li><a href="{{ site.baseurl }}/lightshows/" {% if page.collection_name == "lightshows" %}class="active"{% endif %}>Light Shows</a></li>
-    <li><a href="{{ site.baseurl }}/locksounds/" {% if page.collection_name == "locksounds" %}class="active"{% endif %}>Lock Sounds</a></li>
-    <li><a href="{{ site.baseurl }}/boombox/" {% if page.collection_name == "boombox" %}class="active"{% endif %}>Boombox</a></li>
-    <li><a href="{{ site.baseurl }}/wraps/" {% if page.collection_name == "wraps" %}class="active"{% endif %}>Wraps</a></li>
-    <li><a href="{{ site.baseurl }}/hornsounds/" {% if page.collection_name == "hornsounds" %}class="active"{% endif %}>Horn Sounds</a></li>
-    <li><a href="{{ site.baseurl }}/tags/" {% if page.layout == "tags" or page.layout == "tag" %}class="active"{% endif %}>Tags</a></li>
+    <li><a href="{{ site.baseurl }}/lightshows/" {% if page.collection_name == "lightshows" or page.collection == "lightshows" %}class="active" aria-current="page"{% endif %}>Light Shows</a></li>
+    <li><a href="{{ site.baseurl }}/locksounds/" {% if page.collection_name == "locksounds" or page.collection == "locksounds" %}class="active" aria-current="page"{% endif %}>Lock Sounds</a></li>
+    <li><a href="{{ site.baseurl }}/boombox/" {% if page.collection_name == "boombox" or page.collection == "boombox" %}class="active" aria-current="page"{% endif %}>Boombox</a></li>
+    <li><a href="{{ site.baseurl }}/wraps/" {% if page.collection_name == "wraps" or page.collection == "wraps" %}class="active" aria-current="page"{% endif %}>Wraps</a></li>
+    <li><a href="{{ site.baseurl }}/hornsounds/" {% if page.collection_name == "hornsounds" or page.collection == "hornsounds" %}class="active" aria-current="page"{% endif %}>Horn Sounds</a></li>
+    <li><a href="{{ site.baseurl }}/tags/" {% if page.layout == "tags" or page.layout == "tag" %}class="active" aria-current="page"{% endif %}>Tags</a></li>
   </ul>
 </nav>

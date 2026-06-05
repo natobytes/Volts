@@ -1,0 +1,47 @@
+{%- comment -%}
+  Reusable catalog card. Usage: {% include item-card.html item=item %}
+  Wraps show their real thumbnail; every audio category (light shows, lock
+  sounds, boombox, horn sounds) gets an animated equalizer "thumbnail" instead
+  of a flat emoji — light shows use the full RGB spectrum (it's the product).
+{%- endcomment -%}
+{%- assign item = include.item -%}
+{%- assign cat = item.collection -%}
+{%- case cat -%}
+  {%- when 'lightshows' -%}{%- assign cat_label = 'Light Shows' -%}{%- assign fmt = 'FSEQ' -%}{%- assign is_image = false -%}
+  {%- when 'locksounds' -%}{%- assign cat_label = 'Lock Sounds' -%}{%- assign fmt = 'WAV' -%}{%- assign is_image = false -%}
+  {%- when 'boombox' -%}{%- assign cat_label = 'Boombox' -%}{%- assign fmt = 'MP3' -%}{%- assign is_image = false -%}
+  {%- when 'wraps' -%}{%- assign cat_label = 'Wraps' -%}{%- assign fmt = 'PNG' -%}{%- assign is_image = true -%}
+  {%- when 'hornsounds' -%}{%- assign cat_label = 'Horn Sounds' -%}{%- assign fmt = 'WAV' -%}{%- assign is_image = false -%}
+  {%- else -%}{%- assign cat_label = cat -%}{%- assign fmt = '' -%}{%- assign is_image = false -%}
+{%- endcase -%}
+<article class="card">
+  <a class="card-media" href="{{ item.url | relative_url }}" aria-label="{{ item.title }}">
+    <span class="card-cat">{{ cat_label }}</span>
+    {%- if fmt != '' -%}<span class="card-format">{{ fmt }}</span>{%- endif -%}
+    {%- if is_image and item.thumbnail -%}
+      {%- assign thumb = site.baseurl | append: '/content/' | append: cat | append: '/' | append: item.slug | append: '/' | append: item.thumbnail -%}
+      <img src="{{ thumb }}" alt="{{ item.title }}" loading="lazy">
+    {%- else -%}
+      <span class="eq eq--{{ cat }}" aria-hidden="true">
+        {%- for i in (1..24) -%}
+          {%- assign h = i | times: 37 | modulo: 70 | plus: 22 -%}
+          {%- assign d = i | times: 53 | modulo: 70 | plus: 55 -%}
+          <span style="--h:{{ h }}%;--i:{{ i }};--d:{{ d }}0ms"></span>
+        {%- endfor -%}
+      </span>
+      <span class="card-play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg></span>
+    {%- endif -%}
+  </a>
+  <div class="card-body">
+    <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
+    {%- if item.author %}<p class="card-author">{{ item.author }}</p>{% endif -%}
+    {%- if item.description %}<p class="card-desc">{{ item.description }}</p>{% endif -%}
+    {%- if item.tags and item.tags.size > 0 -%}
+      <div class="tag-list">
+        {%- for tag in item.tags limit: 3 -%}
+          <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
+        {%- endfor -%}
+      </div>
+    {%- endif -%}
+  </div>
+</article>

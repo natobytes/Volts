@@ -2,65 +2,40 @@
 layout: default
 ---
 
-<div class="breadcrumb">
-  <a href="{{ site.baseurl }}/">Home</a> &rsaquo;
-  <a href="{{ site.baseurl }}/tags/">Tags</a> &rsaquo;
-  {{ page.tag }}
-</div>
-
-<h1>Tag: {{ page.tag }}</h1>
-
-{% assign all_items = "" | split: "" %}
-{% for col_entry in site.collections %}
-  {% assign col_name = col_entry.label %}
-  {% if col_name == "lightshows" or col_name == "locksounds" or col_name == "boombox" or col_name == "wraps" or col_name == "hornsounds" %}
-    {% for item in site[col_name] %}
-      {% if item.tags contains page.tag %}
-        {% assign all_items = all_items | push: item %}
-      {% endif %}
-    {% endfor %}
-  {% endif %}
-{% endfor %}
-
-{% include tag-filter.html %}
-
-{% if all_items.size > 0 %}
-  <div class="card-grid">
-    {% for item in all_items %}
-      <div class="card">
-        {% if item.thumbnail %}
-          <img class="card-thumb" src="{{ site.baseurl }}/{{ item.collection }}/{{ item.slug }}/{{ item.thumbnail }}" alt="{{ item.title }}" loading="lazy">
-        {% else %}
-          <div class="card-placeholder" aria-hidden="true">
-            {% case item.collection %}
-              {% when 'lightshows' %}&#x1F4A1;
-              {% when 'wraps' %}&#x1F3A8;
-              {% when 'locksounds' %}&#x1F50A;
-              {% when 'boombox' %}&#x1F3B5;
-              {% when 'hornsounds' %}&#x1F4E2;
-              {% else %}&#x26A1;
-            {% endcase %}
-          </div>
-        {% endif %}
-        <div class="card-body">
-          <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
-          {% if item.description %}
-            <p>{{ item.description }}</p>
-          {% endif %}
-          {% if item.author %}
-            <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
-          {% endif %}
-          {% if item.tags %}
-            <div class="tag-list">
-              {% for tag in item.tags %}
-                <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    {% endfor %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="{{ site.baseurl }}/">Home</a> <span class="sep">/</span>
+    <a href="{{ site.baseurl }}/tags/">Tags</a> <span class="sep">/</span>
+    <span>#{{ page.tag }}</span>
   </div>
-{% else %}
-  <p style="color: var(--color-muted); margin-top: var(--space-lg);">No items tagged with "{{ page.tag }}" yet.</p>
-{% endif %}
+
+  {% assign all_items = "" | split: "" %}
+  {% for col_entry in site.collections %}
+    {% assign col_name = col_entry.label %}
+    {% if col_name == "lightshows" or col_name == "locksounds" or col_name == "boombox" or col_name == "wraps" or col_name == "hornsounds" %}
+      {% for item in site[col_name] %}
+        {% if item.tags contains page.tag %}
+          {% assign all_items = all_items | push: item %}
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endfor %}
+
+  <div class="section-head">
+    <span class="eyebrow">Tagged</span>
+    <h1>#{{ page.tag }}</h1>
+    <p class="lead">{{ all_items.size }} item{% if all_items.size != 1 %}s{% endif %} across every category.</p>
+  </div>
+
+  {% include tag-filter.html %}
+
+  {% if all_items.size > 0 %}
+    <div class="card-grid">
+      {% for item in all_items %}
+        {% include item-card.html item=item %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty"><p>No items tagged &ldquo;{{ page.tag }}&rdquo; yet.</p></div>
+  {% endif %}
+</div>

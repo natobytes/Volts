@@ -2,57 +2,45 @@
 layout: default
 ---
 
-<div class="breadcrumb">
-  <a href="{{ site.baseurl }}/">Home</a> &rsaquo; {{ page.title }}
-</div>
+{% assign col = page.collection_name %}
+{% assign collection = site[col] %}
+{% case col %}
+  {% when 'lightshows' %}{% assign formats = 'FSEQ + MP3' %}
+  {% when 'locksounds' %}{% assign formats = 'WAV' %}
+  {% when 'boombox' %}{% assign formats = 'MP3' %}
+  {% when 'wraps' %}{% assign formats = 'PNG' %}
+  {% when 'hornsounds' %}{% assign formats = 'WAV' %}
+  {% else %}{% assign formats = 'FILES' %}
+{% endcase %}
 
-<h1>{{ page.title }}</h1>
-<p>{{ page.description }}</p>
-
-{% assign collection = site[page.collection_name] %}
-
-{% if collection.size > 0 %}
-  <div class="card-grid">
-    {% for item in collection %}
-      <div class="card">
-        {% if item.thumbnail %}
-          {% assign thumb_src = site.baseurl | append: "/content/" | append: page.collection_name | append: "/" | append: item.slug | append: "/" | append: item.thumbnail %}
-          <a class="card-thumb-link glightbox" href="{{ thumb_src }}" data-gallery="gallery" data-title="{{ item.title }}" data-description="{{ item.description }}">
-            <img class="card-thumb" src="{{ thumb_src }}" alt="{{ item.title }}" loading="lazy">
-          </a>
-        {% else %}
-          <div class="card-placeholder" aria-hidden="true">
-            {% case page.collection_name %}
-              {% when 'lightshows' %}&#x1F4A1;{% comment %}light bulb{% endcomment %}
-              {% when 'wraps' %}&#x1F3A8;{% comment %}palette{% endcomment %}
-              {% when 'locksounds' %}&#x1F50A;{% comment %}speaker{% endcomment %}
-              {% when 'boombox' %}&#x1F3B5;{% comment %}music note{% endcomment %}
-              {% when 'hornsounds' %}&#x1F4E2;{% comment %}loudspeaker{% endcomment %}
-              {% else %}&#x26A1;{% comment %}zap{% endcomment %}
-            {% endcase %}
-          </div>
-        {% endif %}
-        <div class="card-body">
-          <h3><a href="{{ item.url | relative_url }}">{{ item.title }}</a></h3>
-          {% if item.description %}
-            <p>{{ item.description }}</p>
-          {% endif %}
-          {% if item.author %}
-            <p style="font-size: 0.8rem; color: var(--color-muted);">by {{ item.author }}</p>
-          {% endif %}
-          {% if item.tags %}
-            <div class="tag-list">
-              {% for tag in item.tags %}
-                <a class="tag" href="{{ site.baseurl }}/tags/{{ tag }}/">{{ tag }}</a>
-              {% endfor %}
-            </div>
-          {% endif %}
-        </div>
-      </div>
-    {% endfor %}
+<div class="page">
+  <div class="breadcrumb">
+    <a href="{{ site.baseurl }}/">Home</a> <span class="sep">/</span> <span>{{ page.title }}</span>
   </div>
-{% else %}
-  <p style="color: var(--color-muted); margin-top: var(--space-lg);">No items yet. <a href="https://github.com/">Contribute the first one!</a></p>
-{% endif %}
 
-{% include tag-filter.html %}
+  <div class="section-head">
+    <span class="eyebrow">Catalog</span>
+    <h1>{{ page.title }}</h1>
+    {% if page.description %}<p class="lead">{{ page.description }}</p>{% endif %}
+    <div class="spec-row" style="margin-top: var(--s-5);">
+      <div class="spec accent"><b>{{ collection | size }}</b><span>Items</span></div>
+      <div class="spec"><b>{{ formats }}</b><span>Formats</span></div>
+      <div class="spec"><b>Free</b><span>To Use</span></div>
+    </div>
+  </div>
+
+  {% include tag-filter.html %}
+
+  {% if collection.size > 0 %}
+    <div class="card-grid">
+      {% for item in collection %}
+        {% include item-card.html item=item %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty">
+      <p>No items here yet.</p>
+      <a class="btn btn-ghost" href="https://github.com/natobytes/Volts">Contribute the first one</a>
+    </div>
+  {% endif %}
+</div>
